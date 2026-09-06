@@ -52,7 +52,7 @@ use tokio_tungstenite::{
 };
 
 const EDGE_TRUSTED_CLIENT_TOKEN: &str = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
-const WSS_URL: &str = "wss://speech.platform.bing.com/consumer/speech/synthesize/read声道/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4";
+const WSS_URL: &str = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 
 fn generate_sec_ms_gmt() -> String {
     chrono::Utc::now().format("%a, %d %b %Y %H:%M:%S GMT").to_string()
@@ -274,14 +274,20 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let pitch_str = params.pitch.unwrap_or_else(|| "+0Hz".to_string());
 
     // 1. Native Direct Microsoft Edge-TTS via WebSocket in Rust (No Python required!)
-    if let Ok(bytes) = fetch_edge_tts_rust(text, edge_voice, &rate_str, &pitch_str).await {
-        if bytes.len() >= 100 {
+    match fetch_edge_tts_rust(text, edge_voice, &rate_str, &pitch_str).await {
+        Ok(bytes) if bytes.len() >= 100 => {
             let _ = tokio::fs::write(&target_file, &bytes).await;
             let mut headers = HeaderMap::new();
             headers.insert(header::CONTENT_TYPE, "audio/mpeg".parse().unwrap());
             headers.insert(header::CACHE_CONTROL, "public, max-age=86400".parse().unwrap());
             headers.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
             return (StatusCode::OK, headers, bytes).into_response();
+        }
+        Ok(_) => {
+            tracing::warn!("Edge TTS returned empty or too short data, falling back to Google TTS");
+        }
+        Err(e) => {
+            tracing::warn!("Failed to fetch Edge TTS (voice: {}): {:?}, falling back to Google TTS", edge_voice, e);
         }
     }
 

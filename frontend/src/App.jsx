@@ -156,20 +156,40 @@ if (window.__TAURI_INTERNALS__) {
                     }
                 }
                 
-                return {
+                const isSuccess = response.status >= 200 && response.status < 300;
+                const axiosResponse = {
                     data,
                     status: response.status,
                     statusText: response.statusText,
                     headers: Object.fromEntries(response.headers.entries()),
                     config
                 };
+
+                if (!isSuccess) {
+                    const axiosError = new Error(`Request failed with status code ${response.status}`);
+                    axiosError.response = axiosResponse;
+                    axiosError.config = config;
+                    axiosError.status = response.status;
+                    throw axiosError;
+                }
+                
+                return axiosResponse;
             } catch (err) {
+                if (err.response) throw err;
                 console.warn('[Tauri HTTP Adapter] Native fetch failed, falling back to standard fetch:', err);
                 try {
                     const res = await fetch(fullUrl, { method: (config.method || 'GET').toUpperCase(), headers: headers, body: body });
                     const contentType = res.headers.get('content-type') || '';
                     const data = contentType.includes('application/json') ? await res.json() : await res.text();
-                    return { data, status: res.status, statusText: res.statusText, headers: {}, config };
+                    const axiosResponse = { data, status: res.status, statusText: res.statusText, headers: {}, config };
+                    if (res.status >= 400) {
+                        const axiosError = new Error(`Request failed with status code ${res.status}`);
+                        axiosError.response = axiosResponse;
+                        axiosError.config = config;
+                        axiosError.status = res.status;
+                        throw axiosError;
+                    }
+                    return axiosResponse;
                 } catch (fallbackErr) {
                     throw fallbackErr;
                 }

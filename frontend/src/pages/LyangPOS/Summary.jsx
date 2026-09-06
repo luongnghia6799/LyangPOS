@@ -1124,10 +1124,6 @@ const ProductMovementReport = ({ onEditOrder }) => {
         return () => clearTimeout(timer);
     }, [partnerSearch]);
 
-    useEffect(() => {
-        axios.get('/api/reports/product-movement/export')
-            .catch(() => {}); // pre-flight/dummy call check if needed, or just keep it simple
-    }, []);
 
     useEffect(() => {
         axios.get('/api/products/brands')
@@ -1201,17 +1197,40 @@ const ProductMovementReport = ({ onEditOrder }) => {
 
     const exportToExcel = async () => {
         try {
-            const params = {
-                start_date: startDate,
-                end_date: endDate,
-                brand: selectedBrand || null,
-                product_ids: selectedProducts.map(p => p.id).join(','),
-                partner_id: selectedPartner?.id || null,
-                type: selectedType || null
-            };
-            const res = await axios.get('/api/reports/product-movement/export', { params, responseType: 'blob' });
+            const params = new URLSearchParams();
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            if (selectedBrand) params.append('brand', selectedBrand);
+            if (selectedProducts.length > 0) params.append('product_ids', selectedProducts.map(p => p.id).join(','));
+            if (selectedPartner?.id) params.append('partner_id', selectedPartner.id);
+            if (selectedType) params.append('type', selectedType);
+            
+            const res = await axios.get(`/api/reports/product-movement?${params.toString()}`);
+            const items = res.data || [];
+            
+            const XLSX = await import('xlsx');
+            const excelRows = items.map(d => ({
+                'Ngày': d.date || '',
+                'Mã Đơn': d.display_id || '',
+                'Sản Phẩm': d.product_name || '',
+                'Hãng': d.brand || '',
+                'Loại': d.type || '',
+                'Đối Tác': d.partner_name || '',
+                'Số Lượng': d.quantity || 0,
+                'Đơn Vị': d.unit || '',
+                'Đơn Giá': d.price || 0,
+                'Thành Tiền': (d.quantity || 0) * (d.price || 0)
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "BienDongHangHoa");
+            
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
             const { saveOrOpenFile } = await import('../../utils/downloadHelper');
-            await saveOrOpenFile(res.data, `bao_cao_bien_dong_${getTodayStr()}.xlsx`);
+            await saveOrOpenFile(blob, `bao_cao_bien_dong_${getTodayStr()}.xlsx`);
         } catch (err) {
             console.error("Export Error:", err);
         }

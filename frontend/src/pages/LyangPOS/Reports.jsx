@@ -421,19 +421,41 @@ export default function Reports() {
 
     const handleExportSynthesis = async () => {
         try {
-            const params = {};
-            params.type = synthesisType;
-            if (synthesisStartDate) params.start_date = synthesisStartDate;
-            if (synthesisEndDate) params.end_date = synthesisEndDate;
-            if (synthesisPartnerId) params.partner_id = synthesisPartnerId;
-            if (synthesisProductId) params.product_id = synthesisProductId;
-            if (selectedBrand) params.brand = selectedBrand;
-            if (groupByBrand) params.group_by_brand = 'true';
+            const params = new URLSearchParams();
+            params.append('type', synthesisType);
+            params.append('flatten', 'true');
+            if (synthesisStartDate) params.append('start_date', synthesisStartDate);
+            if (synthesisEndDate) params.append('end_date', synthesisEndDate);
+            if (synthesisPartnerId) params.append('partner_id', synthesisPartnerId);
+            if (synthesisProductId) params.append('product_id', synthesisProductId);
+            if (selectedBrand) params.append('brand', selectedBrand);
+            if (groupByBrand) params.append('group_by_brand', 'true');
             
-            const res = await axios.get('/api/reports/synthesis/export', { params, responseType: 'blob' });
+            const res = await axios.get(`/api/reports/synthesis?${params.toString()}`);
+            const items = res.data.items || res.data || [];
+            
+            const XLSX = await import('xlsx');
+            const excelRows = items.map(r => ({
+                'Đối Tác': r.partner_name || (synthesisType === 'Sale' ? 'KHÁCH LẺ' : 'NCC VÃNG LAI'),
+                'Số Điện Thoại': r.partner_phone || '',
+                'Sản Phẩm': r.product_name || '',
+                'Hãng': r.brand || '',
+                'ĐVT': r.unit || '',
+                'Số Lượng': r.quantity || 0,
+                'Doanh Thu': r.revenue || 0,
+                'Ghi Chú': r.is_from_combo ? `Từ Combo: ${r.original_combo}` : ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "BaoCaoTongHop");
+            
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
             const { saveOrOpenFile } = await import('../../utils/downloadHelper');
             const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            await saveOrOpenFile(res.data, `bao_cao_tong_hop_${synthesisType}_${todayStr}.xlsx`);
+            await saveOrOpenFile(blob, `bao_cao_tong_hop_${synthesisType}_${todayStr}.xlsx`);
         } catch (err) {
             console.error("Export Synthesis Error:", err);
         }

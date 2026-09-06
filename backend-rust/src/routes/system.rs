@@ -139,9 +139,11 @@ pub async fn repair_backend(State(pool): State<SqlitePool>) -> Result<impl IntoR
     })))
 }
 
-pub async fn shutdown() -> impl IntoResponse {
-    tokio::spawn(async {
-        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+pub async fn shutdown(State(pool): State<SqlitePool>) -> impl IntoResponse {
+    tokio::spawn(async move {
+        let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE);").execute(&pool).await;
+        let _ = sqlx::query("PRAGMA optimize;").execute(&pool).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(300)).await;
         std::process::exit(0);
     });
 

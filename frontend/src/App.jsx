@@ -618,13 +618,19 @@ function App() {
   const [gpuDisabled, setGpuDisabled] = useState(() => localStorage.getItem("pos_gpu_disabled") === "true");
 
   useEffect(() => {
-    // Force focus when app starts (especially useful for auto-start on Windows)
+    // Force focus when app starts & listen for close request to checkpoint WAL
     if (window.__TAURI_INTERNALS__) {
       import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
         try {
           const appWindow = getCurrentWindow();
           appWindow.setFocus();
           appWindow.show();
+
+          appWindow.onCloseRequested(async () => {
+            try {
+              await axios.post('/api/optimize-db');
+            } catch (e) {}
+          });
         } catch (e) {
           console.warn("Failed to set window focus", e);
         }

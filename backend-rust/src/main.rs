@@ -347,7 +347,7 @@ async fn main() -> anyhow::Result<()> {
         )
         // Serve static uploads
         .nest_service("/uploads", ServeDir::new(&config.uploads_dir))
-        .with_state(pool)
+        .with_state(pool.clone())
         .merge(pos_router)
         .layer(cors)
         .layer(TraceLayer::new_for_http());
@@ -356,7 +356,20 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("🚀 LyangPOS Rust Backend is actively listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    let pool_shutdown = pool.clone();
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(async move {
+            let _ = tokio::signal::ctrl_c().await;
+            tracing::info!("Shutdown signal received. Running WAL checkpoint truncate...");
+            let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE);").execute(&pool_shutdown).await;
+            let _ = sqlx::query("PRAGMA optimize;").execute(&pool_shutdown).await;
+            tracing::info!("WAL checkpoint completed. Clean exit.");
+        })
+        .await?;
+
+    // Đảm bảo chạy checkpoint khi kết thúc
+    let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE);").execute(&pool).await;
 
     Ok(())
 }

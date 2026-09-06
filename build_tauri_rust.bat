@@ -70,10 +70,21 @@ echo    * DONG GOI TAURI VOI RUST BACKEND THANH CONG RUC RO! *
 echo =====================================================================
 echo.
 echo [*] File cai dat da duoc tao tai:
-echo     frontend\src-tauri\target\release\bundle\
+echo     frontend\src-tauri\target\release\bundle\nsis\
 echo.
 echo [>] Dang mo thu muc chua file cai dat cho ban...
-start "" "%~dp0frontend\src-tauri\target\release\bundle"
+start "" "%~dp0frontend\src-tauri\target\release\bundle\nsis"
+echo.
+
+set /p UPLOAD_CHOICE="[?] Ban co muon DANG BAN CAI DAT LEN GITHUB RELEASE ngay bay gio? (y/n) [y]: "
+if /i "%UPLOAD_CHOICE%"=="n" goto :finish
+
+echo.
+echo [*] Dang tien hanh dang len GitHub Release...
+cd /d "%~dp0frontend"
+node upload_release.js
+
+:finish
 echo.
 echo =====================================================================
 pause

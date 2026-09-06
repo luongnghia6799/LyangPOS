@@ -131,7 +131,7 @@ export default function Welcome() {
     }, []);
 
     const handleSelectUser = async (user) => {
-        const savedPassword = localStorage.getItem(`saved_pwd_${user.username}`) || '';
+        const savedPassword = localStorage.getItem(`saved_pwd_${user.username}`) || (localStorage.getItem('saved_username') === user.username ? localStorage.getItem('saved_password') : '');
         
         if (savedPassword) {
             setLoading(true);
@@ -152,12 +152,13 @@ export default function Welcome() {
                 navigate('/');
             } catch (err) {
                 console.error("Auto login failed, showing login form:", err);
-                setError(err.response?.data?.error || 'Thông tin đăng nhập không chính xác');
+                setError(err.response?.data?.error || 'Vui lòng nhập mật khẩu để đăng nhập');
                 setFormData({
                     username: user.username,
                     password: '',
                     display_name: ''
                 });
+                setIsLogin(true);
                 setShowLoginForm(true);
             } finally {
                 setLoading(false);
@@ -169,6 +170,7 @@ export default function Welcome() {
                 password: '',
                 display_name: ''
             });
+            setIsLogin(true);
             setShowLoginForm(true);
             setTimeout(() => {
                 document.getElementById('welcome-password-input')?.focus();

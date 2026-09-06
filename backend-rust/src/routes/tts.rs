@@ -285,59 +285,16 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
             return (StatusCode::OK, headers, bytes).into_response();
         }
         Ok(_) => {
-            tracing::warn!("Edge TTS returned empty or too short data, falling back to Google TTS");
+            tracing::warn!("Edge TTS returned empty or too short data for voice: {}", edge_voice);
         }
         Err(e) => {
-            tracing::warn!("Failed to fetch Edge TTS (voice: {}): {:?}, falling back to Google TTS", edge_voice, e);
-        }
-    }
-
-    // 2. Fallback: Google Translate TTS
-    let google_url = format!(
-        "https://translate.google.com/translate_tts?ie=UTF-8&q={}&tl=vi&client=tw-ob",
-        urlencoding_encode(text)
-    );
-
-    let client = reqwest::Client::builder()
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        .build();
-
-    if let Ok(client) = client {
-        if let Ok(resp) = client.get(&google_url).send().await {
-            if resp.status().is_success() {
-                if let Ok(bytes) = resp.bytes().await {
-                    if bytes.len() >= 100 {
-                        let _ = tokio::fs::write(&target_file, &bytes).await;
-                        let mut headers = HeaderMap::new();
-                        headers.insert(header::CONTENT_TYPE, "audio/mpeg".parse().unwrap());
-                        headers.insert(header::CACHE_CONTROL, "public, max-age=86400".parse().unwrap());
-                        headers.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
-                        return (StatusCode::OK, headers, bytes).into_response();
-                    }
-                }
-            }
+            tracing::error!("Failed to fetch Edge TTS (voice: {}): {:?}", edge_voice, e);
         }
     }
 
     (
-        StatusCode::OK,
-        [(header::CONTENT_TYPE, "audio/mpeg")],
-        vec![],
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(serde_json::json!({"error": "Failed to synthesize Edge TTS audio"})),
     )
         .into_response()
-}
-
-fn urlencoding_encode(s: &str) -> String {
-    let mut out = String::new();
-    for b in s.as_bytes() {
-        match *b {
-            b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                out.push(*b as char);
-            }
-            _ => {
-                out.push_str(&format!("%{:02X}", b));
-            }
-        }
-    }
-    out
 }

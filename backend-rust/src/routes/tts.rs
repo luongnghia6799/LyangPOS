@@ -43,7 +43,7 @@ fn remove_accents(input: &str) -> String {
 
 fn get_base_dir() -> PathBuf {
     if let Ok(mut exe_path) = std::env::current_exe() {
-        exe_path.pop(); // remove binary name -> D:\LyangPOS
+        exe_path.pop(); // remove binary name -> D:\LyangPOS (thư mục cài đặt app)
         if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
             exe_path.pop(); // pop release/debug
             exe_path.pop(); // pop target
@@ -55,7 +55,8 @@ fn get_base_dir() -> PathBuf {
 }
 
 fn resolve_tts_dir() -> PathBuf {
-    let dir = get_base_dir().join("tts_cache");
+    let base = get_base_dir();
+    let dir = base.join("tts_cache");
     let _ = std::fs::create_dir_all(&dir);
     dir
 }
@@ -95,8 +96,12 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let human_readable_name = format!("{}_{}.mp3", safe_slug, voice_suffix);
 
     let tts_dir = resolve_tts_dir();
+    let base_dir = get_base_dir();
     let cache_dirs = [
         tts_dir.clone(),
+        base_dir.join("tts"),
+        base_dir.join("resources").join("tts_cache"),
+        base_dir.join("_up_").join("tts_cache"),
     ];
 
     let mut found_path: Option<PathBuf> = None;

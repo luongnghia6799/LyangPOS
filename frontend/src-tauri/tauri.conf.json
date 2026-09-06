@@ -37,7 +37,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [],
+    "resources": [
+      "../../tts_cache/*"
+    ],
     "windows": {
       "nsis": {
         "installerIcon": "icons/icon.ico",

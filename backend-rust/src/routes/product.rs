@@ -232,6 +232,9 @@ pub async fn get_products(
         let min_stock = p.min_stock.unwrap_or(0.0);
         let multiplier = p.multiplier.unwrap_or(1.0);
 
+        if filter_type == "safe" && (final_stock <= 0.0 || (min_stock > 0.0 && final_stock <= min_stock)) {
+            continue;
+        }
         if filter_type == "out_of_stock" && final_stock > 0.0 {
             continue;
         }
@@ -246,13 +249,13 @@ pub async fn get_products(
         }
         if filter_type == "expired" {
             let exp_norm = p.expiry_date.as_deref().map(normalize_date_sqlite).unwrap_or_default();
-            if exp_norm.is_empty() || exp_norm > today_str {
+            if exp_norm.is_empty() || exp_norm == "9999-12-31" || exp_norm > today_str {
                 continue;
             }
         }
         if filter_type == "near_expiry" {
             let exp_norm = p.expiry_date.as_deref().map(normalize_date_sqlite).unwrap_or_default();
-            if exp_norm.is_empty() || exp_norm <= today_str || exp_norm > near_expiry_str {
+            if exp_norm.is_empty() || exp_norm == "9999-12-31" || exp_norm <= today_str || exp_norm > near_expiry_str {
                 continue;
             }
         }

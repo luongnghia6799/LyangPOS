@@ -41,6 +41,16 @@ fn remove_accents(input: &str) -> String {
     output
 }
 
+fn resolve_tts_dir() -> PathBuf {
+    let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    if dir.ends_with("backend-rust") {
+        dir.pop();
+    }
+    dir.push("tts_cache");
+    let _ = std::fs::create_dir_all(&dir);
+    dir
+}
+
 pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let text = match params.text {
         Some(ref t) if !t.trim().is_empty() => t.trim(),
@@ -75,13 +85,13 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
 
     let human_readable_name = format!("{}_{}.mp3", safe_slug, voice_suffix);
 
-    // Candidates in tts_cache directories
+    let tts_dir = resolve_tts_dir();
     let cache_dirs = [
+        tts_dir.clone(),
         PathBuf::from("tts_cache"),
         PathBuf::from("../tts_cache"),
         PathBuf::from("storage/tts_cache"),
         PathBuf::from("../storage/tts_cache"),
-        PathBuf::from("storage"),
     ];
 
     let mut found_path: Option<PathBuf> = None;
@@ -126,15 +136,6 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
         }
     }
 
-    // If cache not found, generate via edge-tts python script or edge-tts CLI
-    let tts_dir = if Path::new("tts_cache").exists() {
-        PathBuf::from("tts_cache")
-    } else if Path::new("../tts_cache").exists() {
-        PathBuf::from("../tts_cache")
-    } else {
-        PathBuf::from("storage/tts_cache")
-    };
-    let _ = tokio::fs::create_dir_all(&tts_dir).await;
     let target_file = tts_dir.join(&human_readable_name);
 
     let edge_voice = if voice_suffix == "nam" {
@@ -146,7 +147,7 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let rate_str = params.rate.unwrap_or_else(|| "+0%".to_string());
     let pitch_str = params.pitch.unwrap_or_else(|| "+0Hz".to_string());
 
-    // Try executing edge-tts via .venv python or system python
+    // 1. Try Python edge-tts if installed in environment
     let python_candidates = [
         PathBuf::from(r"..\.venv\Scripts\python.exe"),
         PathBuf::from(r".venv\Scripts\python.exe"),
@@ -181,10 +182,52 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
         }
     }
 
+    // 2. Native Fallback directly in Rust: Google Translate TTS API (No Python required!)
+    let google_url = format!(
+        "https://translate.google.com/translate_tts?ie=UTF-8&q={}&tl=vi&client=tw-ob",
+        urlencoding_encode(text)
+    );
+
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+        .build();
+
+    if let Ok(client) = client {
+        if let Ok(resp) = client.get(&google_url).send().await {
+            if resp.status().is_success() {
+                if let Ok(bytes) = resp.bytes().await {
+                    if bytes.len() >= 100 {
+                        let _ = tokio::fs::write(&target_file, &bytes).await;
+                        let mut headers = HeaderMap::new();
+                        headers.insert(header::CONTENT_TYPE, "audio/mpeg".parse().unwrap());
+                        headers.insert(header::CACHE_CONTROL, "public, max-age=86400".parse().unwrap());
+                        headers.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
+                        return (StatusCode::OK, headers, bytes).into_response();
+                    }
+                }
+            }
+        }
+    }
+
     (
         StatusCode::OK,
         [(header::CONTENT_TYPE, "audio/mpeg")],
         vec![],
     )
         .into_response()
+}
+
+fn urlencoding_encode(s: &str) -> String {
+    let mut out = String::new();
+    for b in s.as_bytes() {
+        match *b {
+            b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(*b as char);
+            }
+            _ => {
+                out.push_str(&format!("%{:02X}", b));
+            }
+        }
+    }
+    out
 }

@@ -141,12 +141,12 @@ pub fn run() {
         Ok(sidecar) => {
           #[cfg(debug_assertions)]
           let sidecar = sidecar
-            .args(["--tauri", "--port", "3580", "--db", "easypos_dev.db"])
-            .env("LYANG_PORT", "3580")
-            .env("LYANG_DB", "easypos_dev.db");
+            .args(["--tauri", "--port", "3579", "--db", "easypos.db"])
+            .env("LYANG_PORT", "3579")
+            .env("LYANG_DB", "easypos.db");
 
           #[cfg(not(debug_assertions))]
-          let sidecar = sidecar.args(["--tauri"]);
+          let sidecar = sidecar.args(["--tauri", "--port", "3579", "--db", "easypos.db"]);
           
           match sidecar.spawn() {
             Ok((mut rx, child)) => {

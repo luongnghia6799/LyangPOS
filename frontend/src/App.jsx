@@ -13,7 +13,7 @@ import CustomCursor from './components/CustomCursor';
 import { checkIsAdmin } from './lib/auth';
 import axios from 'axios';
 
-const DEFAULT_PORT = import.meta.env.VITE_BACKEND_PORT || (import.meta.env.DEV ? '3588' : '3579');
+const DEFAULT_PORT = import.meta.env.VITE_BACKEND_PORT || '3579';
 
 const resolveApiUrl = (val) => {
     if (!val) return '';

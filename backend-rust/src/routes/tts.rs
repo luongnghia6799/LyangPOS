@@ -78,7 +78,8 @@ async fn fetch_edge_tts_rust(text: &str, voice: &str, rate: &str, pitch: &str) -
 
     let date_str = generate_sec_ms_gmt();
     let config_message = format!(
-        "Content-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{{\"context\":{{\"synthesis\":{{\"audio\":{{\"metadataoptions\":{{\"sentenceBoundaryEnabled\":\"false\",\"wordBoundaryEnabled\":\"false\"}},\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"}}}}}}}}"
+        "X-Timestamp:{}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{{\"context\":{{\"synthesis\":{{\"audio\":{{\"metadataoptions\":{{\"sentenceBoundaryEnabled\":\"false\",\"wordBoundaryEnabled\":\"false\"}},\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"}}}}}}}}",
+        date_str
     );
     write.send(Message::Text(config_message.into())).await?;
 
@@ -116,8 +117,8 @@ async fn fetch_edge_tts_rust(text: &str, voice: &str, rate: &str, pitch: &str) -
     );
 
     let ssml_message = format!(
-        "X-RequestId:{}\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n{}",
-        req_id, ssml
+        "X-RequestId:{}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:{}\r\nPath:ssml\r\n\r\n{}",
+        req_id, date_str, ssml
     );
     write.send(Message::Text(ssml_message.into())).await?;
 

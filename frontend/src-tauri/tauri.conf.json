@@ -37,6 +37,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "resources": [
+      "easypos.db"
+    ],
     "windows": {
       "nsis": {
         "installerIcon": "icons/icon.ico",

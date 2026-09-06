@@ -1054,15 +1054,9 @@ export const precacheAmounts = (totalAmount, partnerName = "") => {
   try {
     const rate = parseFloat(localStorage.getItem("pos_speech_rate") || "1.4");
     const pitch = localStorage.getItem("pos_speech_pitch") || "0";
-    const selectedVoiceName = localStorage.getItem("pos_selected_voice") || "edge-vi-female";
-    if (selectedVoiceName !== "google" && !selectedVoiceName.startsWith("edge")) {
-      return;
-    }
+    const selectedVoiceName = localStorage.getItem("pos_selected_voice") || (localStorage.getItem("pos_tts_mode") === "male" ? "edge-vi-male" : "edge-vi-female");
     const baseUrl = getDynamicBaseUrl();
-    let voiceParam = 'google';
-    if (selectedVoiceName === 'edge-vi-female' || selectedVoiceName === 'edge-vi-male') {
-      voiceParam = selectedVoiceName;
-    }
+    const voiceParam = (selectedVoiceName === 'edge-vi-male' || localStorage.getItem("pos_tts_mode") === "male") ? 'edge-vi-male' : 'edge-vi-female';
 
     // Clean up old dynamic entries in ttsAudioCache to prevent memory leak (RAM overflow)
     Object.keys(ttsAudioCache).forEach(key => {
@@ -1180,13 +1174,9 @@ export const speakNumber = (num, isCurrency = false, partnerName = "", customTem
 
     const rate = parseFloat(localStorage.getItem("pos_speech_rate") || "1.4");
     const pitch = localStorage.getItem("pos_speech_pitch") || "0";
-    const selectedVoiceName = localStorage.getItem("pos_selected_voice") || "edge-vi-female";
-
+    const selectedVoiceName = localStorage.getItem("pos_selected_voice") || (localStorage.getItem("pos_tts_mode") === "male" ? "edge-vi-male" : "edge-vi-female");
     const baseUrl = getDynamicBaseUrl();
-    let voiceParam = 'google';
-    if (selectedVoiceName === 'edge-vi-female' || selectedVoiceName === 'edge-vi-male') {
-      voiceParam = selectedVoiceName;
-    }
+    const voiceParam = (selectedVoiceName === 'edge-vi-male' || localStorage.getItem("pos_tts_mode") === "male") ? 'edge-vi-male' : 'edge-vi-female';
     
     const cacheKey = `${voiceParam}_${rate}_${pitch}_${viText}`;
     const audioUrl = `${baseUrl.replace(/\/+$/, '')}/api/tts?text=${encodeURIComponent(viText)}&voice=${voiceParam}&rate=${rate}&pitch=${encodeURIComponent(pitch)}`;
@@ -1269,12 +1259,9 @@ export const speakAudioSequence = async (items = []) => {
   const seqId = ++currentSequenceId;
   const rate = parseFloat(localStorage.getItem("pos_speech_rate") || "1.4");
   const pitch = localStorage.getItem("pos_speech_pitch") || "0";
-  const selectedVoiceName = localStorage.getItem("pos_selected_voice") || "edge-vi-female";
+  const selectedVoiceName = localStorage.getItem("pos_selected_voice") || (localStorage.getItem("pos_tts_mode") === "male" ? "edge-vi-male" : "edge-vi-female");
   const baseUrl = getDynamicBaseUrl();
-  let voiceParam = 'google';
-  if (selectedVoiceName === 'edge-vi-female' || selectedVoiceName === 'edge-vi-male') {
-    voiceParam = selectedVoiceName;
-  }
+  const voiceParam = (selectedVoiceName === 'edge-vi-male' || localStorage.getItem("pos_tts_mode") === "male") ? 'edge-vi-male' : 'edge-vi-female';
 
   // Pre-resolve all texts and buffers in parallel with gap metadata
   const parsedItems = validItems.map((item, idx) => {

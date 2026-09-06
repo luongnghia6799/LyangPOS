@@ -41,13 +41,129 @@ fn remove_accents(input: &str) -> String {
     output
 }
 
+use futures_util::{SinkExt, StreamExt};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::{
+        client::IntoClientRequest,
+        http::HeaderValue,
+        protocol::Message,
+    },
+};
+
+const EDGE_TRUSTED_CLIENT_TOKEN: &str = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
+const WSS_URL: &str = "wss://speech.platform.bing.com/consumer/speech/synthesize/read声道/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4";
+
+fn generate_sec_ms_gmt() -> String {
+    chrono::Utc::now().format("%a, %d %b %Y %H:%M:%S GMT").to_string()
+}
+
+fn generate_request_id() -> String {
+    let now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    format!("{:032x}", now)
+}
+
+async fn fetch_edge_tts_rust(text: &str, voice: &str, rate: &str, pitch: &str) -> anyhow::Result<Vec<u8>> {
+    let mut req = WSS_URL.into_client_request()?;
+    let headers = req.headers_mut();
+    headers.insert("Pragma", HeaderValue::from_static("no-cache"));
+    headers.insert("Cache-Control", HeaderValue::from_static("no-cache"));
+    headers.insert("Origin", HeaderValue::from_static("chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold"));
+    headers.insert("Accept-Encoding", HeaderValue::from_static("gzip, deflate, br"));
+    headers.insert("Accept-Language", HeaderValue::from_static("vi,en-US;q=0.9,en;q=0.8"));
+    headers.insert("User-Agent", HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"));
+
+    let (ws_stream, _) = connect_async(req).await?;
+    let (mut write, mut read) = ws_stream.split();
+
+    let date_str = generate_sec_ms_gmt();
+    let config_message = format!(
+        "Content-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{{\"context\":{{\"synthesis\":{{\"audio\":{{\"metadataoptions\":{{\"sentenceBoundaryEnabled\":\"false\",\"wordBoundaryEnabled\":\"false\"}},\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"}}}}}}}}"
+    );
+    write.send(Message::Text(config_message.into())).await?;
+
+    let req_id = generate_request_id();
+    let ssml_rate = if rate.is_empty() || rate == "+0%" || rate == "1" || rate == "1.0" {
+        "+0%".to_string()
+    } else if rate.starts_with('+') || rate.starts_with('-') {
+        rate.to_string()
+    } else if let Ok(val) = rate.parse::<f32>() {
+        let pct = ((val - 1.0) * 100.0).round() as i32;
+        if pct >= 0 { format!("+{}%", pct) } else { format!("{}%", pct) }
+    } else {
+        "+0%".to_string()
+    };
+
+    let ssml_pitch = if pitch.is_empty() || pitch == "+0Hz" || pitch == "0" {
+        "+0Hz".to_string()
+    } else if pitch.starts_with('+') || pitch.starts_with('-') {
+        pitch.to_string()
+    } else {
+        let p_val = pitch.parse::<i32>().unwrap_or(0);
+        if p_val >= 0 { format!("+{}Hz", p_val) } else { format!("{}Hz", p_val) }
+    };
+
+    let escaped_text = text
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;");
+
+    let ssml = format!(
+        "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='vi-VN'><voice name='{}'><prosody pitch='{}' rate='{}'>{}</prosody></voice></speak>",
+        voice, ssml_pitch, ssml_rate, escaped_text
+    );
+
+    let ssml_message = format!(
+        "X-RequestId:{}\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n{}",
+        req_id, ssml
+    );
+    write.send(Message::Text(ssml_message.into())).await?;
+
+    let mut audio_data = Vec::new();
+
+    while let Some(msg_result) = read.next().await {
+        match msg_result {
+            Ok(Message::Binary(bin)) => {
+                if bin.len() > 2 {
+                    let header_len = u16::from_be_bytes([bin[0], bin[1]]) as usize;
+                    if bin.len() >= 2 + header_len {
+                        let payload = &bin[2 + header_len..];
+                        audio_data.extend_from_slice(payload);
+                    }
+                }
+            }
+            Ok(Message::Text(txt)) => {
+                if txt.contains("Path:turn.end") {
+                    break;
+                }
+            }
+            Ok(Message::Close(_)) => break,
+            Err(e) => {
+                tracing::warn!("TTS WebSocket error: {:?}", e);
+                break;
+            }
+            _ => {}
+        }
+    }
+
+    let _ = write.close().await;
+
+    if audio_data.is_empty() {
+        anyhow::bail!("No audio data received from Edge TTS");
+    }
+
+    Ok(audio_data)
+}
+
 fn get_base_dir() -> PathBuf {
     if let Ok(mut exe_path) = std::env::current_exe() {
-        exe_path.pop(); // remove binary name -> D:\LyangPOS (thư mục cài đặt app)
+        exe_path.pop();
         if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
-            exe_path.pop(); // pop release/debug
-            exe_path.pop(); // pop target
-            exe_path.pop(); // pop backend-rust
+            exe_path.pop();
+            exe_path.pop();
+            exe_path.pop();
         }
         return exe_path;
     }
@@ -157,42 +273,19 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let rate_str = params.rate.unwrap_or_else(|| "+0%".to_string());
     let pitch_str = params.pitch.unwrap_or_else(|| "+0Hz".to_string());
 
-    // 1. Try Python edge-tts if installed in environment
-    let python_candidates = [
-        PathBuf::from(r"..\.venv\Scripts\python.exe"),
-        PathBuf::from(r".venv\Scripts\python.exe"),
-        PathBuf::from("python"),
-    ];
-
-    let py_cmd = format!(
-        "import edge_tts, asyncio; asyncio.run(edge_tts.Communicate('''{}''', '{}', rate='{}', pitch='{}').save(r'{}'))",
-        text.replace('\'', "\\'"),
-        edge_voice,
-        rate_str,
-        pitch_str,
-        target_file.display()
-    );
-
-    for py in &python_candidates {
-        let output = tokio::process::Command::new(py)
-            .args(["-c", &py_cmd])
-            .output()
-            .await;
-
-        if let Ok(res) = output {
-            if res.status.success() && target_file.exists() {
-                if let Ok(bytes) = tokio::fs::read(&target_file).await {
-                    let mut headers = HeaderMap::new();
-                    headers.insert(header::CONTENT_TYPE, "audio/mpeg".parse().unwrap());
-                    headers.insert(header::CACHE_CONTROL, "public, max-age=86400".parse().unwrap());
-                    headers.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
-                    return (StatusCode::OK, headers, bytes).into_response();
-                }
-            }
+    // 1. Native Direct Microsoft Edge-TTS via WebSocket in Rust (No Python required!)
+    if let Ok(bytes) = fetch_edge_tts_rust(text, edge_voice, &rate_str, &pitch_str).await {
+        if bytes.len() >= 100 {
+            let _ = tokio::fs::write(&target_file, &bytes).await;
+            let mut headers = HeaderMap::new();
+            headers.insert(header::CONTENT_TYPE, "audio/mpeg".parse().unwrap());
+            headers.insert(header::CACHE_CONTROL, "public, max-age=86400".parse().unwrap());
+            headers.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
+            return (StatusCode::OK, headers, bytes).into_response();
         }
     }
 
-    // 2. Native Fallback directly in Rust: Google Translate TTS API (No Python required!)
+    // 2. Fallback: Google Translate TTS
     let google_url = format!(
         "https://translate.google.com/translate_tts?ie=UTF-8&q={}&tl=vi&client=tw-ob",
         urlencoding_encode(text)

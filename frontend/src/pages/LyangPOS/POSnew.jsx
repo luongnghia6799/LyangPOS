@@ -1,37 +1,126 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect, forwardRef } from "react";
 const i = React;
 import axios from "axios";
 const M = axios;
 const Vn = axios;
 import { useQueryClient } from "@tanstack/react-query";
 const zl = useQueryClient;
+const ci = useQueryClient;
 import { useLocation } from "react-router-dom";
 const Il = useLocation;
+const bd = useLocation;
 import toast from "react-hot-toast";
 const Ve = toast;
+const At = toast;
 import { Slot } from "@radix-ui/react-slot";
-const Dl = Slot;
 import { cva } from "class-variance-authority";
-const Pl = cva;
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-const El = DialogPrimitive.Root;
-const ql = DialogPrimitive.Trigger;
-const Ml = DialogPrimitive.Close;
-const Wl = DialogPrimitive.Portal;
-const Rl = DialogPrimitive.Overlay;
-const Al = DialogPrimitive.Overlay;
-const Ol = DialogPrimitive.Root;
-const Ll = DialogPrimitive.Content;
-const $l = DialogPrimitive.Close;
-const Hl = DialogPrimitive.Title;
-const Kl = DialogPrimitive.Description;
 import { motion as x, useMotionValue as In, useSpring as Dn, MotionConfig as ro, AnimatePresence as Ws } from "framer-motion";
-import { ReceiptText as ReceiptTextIcon, FileText as FileTextIcon, Copy as Pn, Trash2 as so, User as Qn, X as Xn, Phone as Jn, MapPin as Yn, Plus as Zn, ChevronRight as no, FileText as ei, Pause as io, ChevronLeft as lo, Users as oo, History as ti, Menu as co, Bot as En, Eye as po, Tv as qr, Volume2 as la, ShoppingCart as uo, Bell as mo, PanelRight as xo, PanelBottom as ho, TrendingUp as bo, Satellite as go, Coins as Rs, Zap as fo, Search as yo, PackageX as vo, TriangleAlert as As, Package as ko, RefreshCcw as wo, RotateCcw as jo, TrendingDown as _o, CircleAlert as No, Droplets as Co, Check as Os, Sparkles as Es, Activity as So, Sprout as To, Wallet as zo, Truck as Io, Banknote as Do, CreditCard as Po, ArrowLeftRight as Eo, ArrowRight as qo, ShoppingBag as Mo, Save as Wo, Printer as Ro, Clock as Ao, LoaderCircle as ai, Leaf as ri, BookOpen as Oo, ReceiptText as Lo, BadgePercent as $o, HandCoins as Ho, RotateCw as Ko, Minus as Go, VolumeX as Uo, Camera as Bo, Calendar as Fo, CircleCheck as Vo, PackageSearch as Qo, ExternalLink as Xo, EyeOff as Jo, Bone as Yo, Settings as SetIcon, MessageSquareQuote as MsgQuote, Music as MuIcon, Radio as RadioIcon, Keyboard as KeybIcon, Sliders as SlidersIcon, Palette } from "lucide-react";
-import { DEFAULT_SETTINGS as Gl } from "@/lib/settings";
+const P = Ws;
+const fd = ro;
+import { 
+  ReceiptText as ReceiptTextIcon, FileText as FileTextIcon, Copy as Pn, Trash2 as so, User as Qn, X as Xn, 
+  Phone as Jn, MapPin as Yn, Plus as Zn, ChevronRight as no, FileText as ei, Pause as io, ChevronLeft as lo, 
+  Users as oo, History as ti, Menu as co, Bot as En, Eye as po, Tv as qr, Volume2 as la, ShoppingCart as uo, 
+  Bell as mo, PanelRight as xo, PanelBottom as ho, TrendingUp as bo, Satellite as go, Coins as Rs, Zap as fo, 
+  Search as yo, PackageX as vo, TriangleAlert as As, Package as ko, RefreshCcw as wo, RotateCcw as jo, 
+  TrendingDown as _o, CircleAlert as No, Droplets as Co, Check as Os, Sparkles as Es, Activity as So, 
+  Sprout as To, Wallet as zo, Truck as Io, Banknote as Do, CreditCard as Po, ArrowLeftRight as Eo, 
+  ArrowRight as qo, ShoppingBag as Mo, Save as Wo, Printer as Ro, Clock as Ao, LoaderCircle as ai, 
+  Leaf as ri, BookOpen as Oo, ReceiptText as Lo, BadgePercent as $o, HandCoins as Ho, RotateCw as Ko, 
+  Minus as Go, VolumeX as Uo, Camera as Bo, Calendar as Fo, CircleCheck as Vo, PackageSearch as Qo, 
+  ExternalLink as Xo, EyeOff as Jo, Bone as Yo, Settings as SetIcon, MessageSquareQuote as MsgQuote, 
+  Music as MuIcon, Radio as RadioIcon, Keyboard as KeybIcon, Sliders as SlidersIcon, Palette 
+} from "lucide-react";
+
+// Lucide icon & UI component aliases used across POS
+const Comp_fd = ro;
+const Comp_ke = Xn;
+const Comp_ai = ai;
+const Comp_pa = so;
+const Comp_ei = ei;
+const Comp_jt = io;
+const Comp_qs = lo;
+const Comp_jd = oo;
+const Comp_co = co;
+const Comp_la = la;
+const Comp_uo = uo;
+const Comp_mo = mo;
+const Comp_xo = xo;
+const Comp_ho = ho;
+const Comp_da = As;
+const Comp_ca = ko;
+const Comp_oa = wo;
+const Comp_ti = jo;
+const Comp_qo = qo;
+const Comp_ri = ri;
+const Comp_ua = ti;
+const Comp_pi = zo;
+const Comp_ui = Go;
+const Comp_u_t = Io;
+const Comp_u_d = FileTextIcon;
+
+const Ir = Qn;
+const Gs = yo;
+const En_Icon = En;
+const As_Icon = As;
+const Zn_Icon = Zn;
+const Bo_Icon = Bo;
+const Es_Icon = Es;
+const Ao_Icon = Ao;
+const Xn_Icon = Xn;
+
 const TvMonitorIcon = qr;
 const SatelliteIcon = go;
+const Ln = qr;
+const Ot = Zn;
+const Dr = no;
+const $s = po;
+const On = Jo;
+const Ja = Ao;
+const Hs = Oo;
+const Ks = Lo;
+const Va = zo;
+const yd = Yo;
+const Qa = ko;
+const _t = Io;
+const vd = Fo;
+const zr = Vo;
+const Us = Yn;
+const Mr = Jn;
+const kd = Qo;
+const wd = Xo;
+const Xa = wo;
+const Nd = fo;
+const Pr = vo;
+const Ms = jo;
+const $n = _o;
+const Cd = No;
+const Sd = Co;
+const Hn = Os;
+const Kn = So;
+const Gn = To;
+const ca = ei;
+const Un = ai;
+const Er = Wo;
+const Fa = Ro;
+const Td = $o;
+const Bn = Eo;
+const zd = ri;
+const Id = Ho;
+const Dd = Ko;
+const ua = ti;
+const oa = Rs;
+const Rn = async v => await v();
+const Ts = async v => await v();
+const An = ProductEditModal;
+const Wn = PartnerEditModal;
+const Pd = PartnerHistoryModal;
+
+import { DEFAULT_SETTINGS as Gl, DEFAULT_SETTINGS as Tr } from "@/lib/settings";
 import PrintTemplate from "@/components/PrintTemplate";
 const Ul = PrintTemplate;
+const Mn = PrintTemplate;
 import TaxCalculatorModal from "@/components/TaxCalculatorModal";
 const Bl = TaxCalculatorModal;
 import PartnerEditModal from "@/components/PartnerEditModal";
@@ -55,14 +144,23 @@ const zn = CustomSelect;
 import MarqueeText from "@/components/MarqueeText";
 const Ps = MarqueeText;
 import { useProductData as eo, usePartnerData as to, useShippingSummary as ao } from "@/queries/useProductData";
-import { cn as c, formatNumber as z, formatCurrency as lt, formatDate as ot, removeAccents as xt, speakNumber as ht, speakAudioSequence, stopAllTTS, precacheAmounts as yl, precacheCommonTTS as Ss, normalizeUOM as Ae, smartSortItems as Tn, formatDebt as vl, playSuccessSound as Is, playErrorSound as Sl, playPopSound as Ds, playTabSound as zs, playTypingSound as playTypingSoundUtil, playAddToCartSound } from "@/lib/utils";
+const od = eo;
+const dd = to;
+const cd = ao;
+import { 
+  cn as c, formatNumber as z, formatCurrency as lt, formatDate as ot, removeAccents as xt, 
+  speakNumber as ht, speakAudioSequence, stopAllTTS, precacheAmounts as yl, precacheCommonTTS as Ss, 
+  normalizeUOM as Ae, smartSortItems as Tn, formatDebt as vl, playSuccessSound as Is, 
+  playErrorSound as Sl, playPopSound as Ds, playTabSound as zs, playTypingSound as playTypingSoundUtil, 
+  playAddToCartSound 
+} from "@/lib/utils";
 import Portal from "@/components/Portal";
 const Fn = Portal;
+const Ee = Portal;
 import CustomDatePicker from "@/components/CustomDatePicker";
 import POSHistoryPanel from "@/components/POSHistoryPanel";
 import PartnerHistoryModal from "@/components/PartnerHistoryModal";
 import ProductEditModal from "@/components/ProductEditModal";
-const wl = ProductEditModal;
 import Toast from "@/components/Toast";
 const jl = Toast;
 import ConfirmModal from "@/components/ConfirmModal";
@@ -72,6 +170,19 @@ const Nl = QuickEditModal;
 import logo from "@/assets/logo.png";
 const kl = logo;
 const _l = () => null;
+
+// Modal & dialog aliases used across POS
+const Comp_td = jl;
+const Comp_ed = Bl;
+const Comp_nd = Jl;
+const Comp_id = Yl;
+const Comp_ad = _l;
+const Comp_rd = Nl;
+const Comp_sd = Cl;
+const Comp_ld = Zl;
+const Comp_ac = _l;
+const Comp_zn = zn;
+
 const Ls = (v, N) => {
     let C = M.defaults.baseURL || "http://localhost:3579";
     const rate = localStorage.getItem("pos_speech_rate") || "1.4";
@@ -125,638 +236,9 @@ const Ls = (v, N) => {
     if (window.currentPackingQueue && window.currentPackingQueue.stop) {
       window.currentPackingQueue = null;
     }
-  },
-  Zo = Ql,
-  Tr = Gl,
-  Mn = Ul,
-  ed = Bl,
-  Wn = Fl,
-  Rn = async v => await v(),
-  An = wl,
-  td = jl,
-  ad = _l,
-  rd = Nl,
-  sd = Cl,
-  Ee = Fn,
-  nd = Jl,
-  id = Yl,
-  ld = Zl,
-  od = eo,
-  dd = to,
-  cd = ao,
-  si = El,
-  pd = ql,
-  ud = Ml,
-  ni = Wl,
-  md = Rl,
-  ii = Al,
-  xd = Ol,
-  li = Ll,
-  hd = $l,
-  oi = Hl,
-  di = Kl,
-  ci = zl,
-  At = Ve,
-  bd = Il,
-  gd = Dl,
-  P = Ws,
-  fd = ro,
-  ua = ti,
-  $s = po,
-  On = Jo,
-  ke = Xn,
-  Ja = Ao,
-  pi = Mo,
-  Hs = Oo,
-  Ks = Lo,
-  Va = zo,
-  yd = Yo,
-  pa = so,
-  Qa = ko,
-  _t = Io,
-  Gs = yo,
-  vd = Fo,
-  zr = Vo,
-  Us = Yn,
-  Mr = Jn,
-  kd = Qo,
-  wd = Xo,
-  Xa = wo,
-  Ln = qr,
-  Ir = Qn,
-  Ot = Zn,
-  Dr = no,
-  jt = io,
-  qs = lo,
-  oa = Rs,
-  jd = oo,
-  _d = bo,
-  Nd = fo,
-  Pr = vo,
-  da = As,
-  Ms = jo,
-  $n = _o,
-  Cd = No,
-  Sd = Co,
-  Hn = Os,
-  Kn = So,
-  Gn = To,
-  ca = ei,
-  Un = ai,
-  Er = Wo,
-  Fa = Ro,
-  Td = $o,
-  Bn = Eo,
-  zd = ri,
-  Id = Ho,
-  Dd = Ko,
-  ui = Go;
-function Pd({
-  partner: v,
-  isOpen: N,
-  onClose: C,
-  onAddToCart: X,
-  onViewOrder: xe,
-  onEditOrder: W,
-  onDeleteOrder: pe,
-  onEditVoucher: we,
-  onDeleteVoucher: Oe
-}) {
-  const [Qe, te] = i.useState([]),
-    [at, B] = i.useState([]),
-    [ue, je] = i.useState(!1),
-    [Ie, dt] = i.useState("invoices"),
-    [Le, Nt] = i.useState("all"),
-    [Lt, he] = i.useState(1),
-    [$t, _e] = i.useState(!0),
-    [Xe, j] = i.useState(!0),
-    [E, D] = i.useState("all"),
-    [T, Y] = i.useState(""),
-    [be, Z] = i.useState(""),
-    [ae, bt] = i.useState(!0),
-    rt = Qe.filter(_ => _.is_voucher && _.type === "Receipt");
-  i.useEffect(() => {
-    N && v && (te([]), he(1), _e(!0), D("all"), Y(""), Z(""), gt(1));
-  }, [N, v]), i.useEffect(() => {
-    const _ = new BroadcastChannel("pos_data_sync");
-    return _.onmessage = g => {
-      N && v && (g.data.type === "ORDER_SAVED" || g.data.type === "PARTNER_UPDATED") && (console.log("History Panel Sync Refreshing..."), te([]), he(1), _e(!0), gt(1));
-    }, () => _.close();
-  }, [N, v]), i.useEffect(() => {
-    const _ = g => {
-      g.key === "Escape" && C();
-    };
-    return N && window.addEventListener("keydown", _), () => window.removeEventListener("keydown", _);
-  }, [N, C]), i.useEffect(() => {
-    E === "custom" && rt.length >= 2 ? (T || Y(rt[0].id), be || Z(rt[1].id)) : E === "custom" && rt.length === 1 && (T || Y(rt[0].id), be || Z(rt[0].id));
-  }, [E, rt, T, be]);
-  const gt = async (_ = 1, g = ae) => {
-      je(!0);
-      try {
-        const f = g ? `/api/orders?partner_id=${v.id}&limit=20&page=${_}` : `/api/orders?partner_id=${v.id}&limit=20&page=${_}&type=Sale`,
-          [ne, me] = await Promise.all([M.get(f), M.get(`/api/vouchers?partner_id=${v.id}`)]),
-          qe = ne.data.items || ne.data || [],
-          ma = (me.data || []).filter(A => A.source !== "auto").map(A => ({
-            id: `v_${A.id}`,
-            is_voucher: !0,
-            display_id: A.type === "DebtIncrease" ? `GN-${A.id}` : A.type === "Receipt" ? `PT-${A.id}` : `PC-${A.id}`,
-            date: A.date,
-            time: ot(A.date, "HH:mm"),
-            total_amount: A.amount,
-            payment_method: A.type === "DebtIncrease" ? "Debt" : A.type === "Receipt" ? "PT" : "PC",
-            type: A.type,
-            note: A.note,
-            details: []
-          }));
-        if (te(A => (_ === 1 ? [...qe.map(ie => ({
-          ...ie,
-          time: ot(ie.date, "HH:mm")
-        })), ...ma] : [...A, ...qe.map(ie => ({
-          ...ie,
-          time: ot(ie.date, "HH:mm")
-        }))]).sort((ie, y) => new Date(y.date) - new Date(ie.date))), qe.length < 20 && _e(!1), _ === 1) {
-          const A = {};
-          qe.forEach(ie => {
-            ie.details && ie.details.forEach(y => {
-              A[y.product_id] || (A[y.product_id] = {
-                id: y.product_id,
-                name: y.product_name,
-                unit: y.product_unit,
-                price: y.price,
-                total_qty: 0,
-                last_price: y.price,
-                last_date: ie.date
-              }), A[y.product_id].total_qty += y.quantity, new Date(ie.date) > new Date(A[y.product_id].last_date) && (A[y.product_id].last_date = ie.date, A[y.product_id].last_price = y.price);
-            });
-          }), B(Object.values(A).sort((ie, y) => y.total_qty - ie.total_qty));
-        }
-      } catch (f) {
-        console.error("Error fetching POS history:", f);
-      } finally {
-        je(!1);
-      }
-    },
-    Ht = () => {
-      const _ = Lt + 1;
-      he(_), gt(_, ae);
-    },
-    fe = () => {
-      const _ = !ae;
-      bt(_), te([]), he(1), _e(!0), gt(1, _);
-    };
-  return <P>{N && <div className="fixed inset-0 z-[3000] flex justify-end font-sans"><x.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} exit={{
-        opacity: 0
-      }} onClick={C} className="absolute inset-0 bg-black/40 backdrop-blur-md" /><x.div initial={{
-        x: "100%",
-        opacity: 0
-      }} animate={{
-        x: 0,
-        opacity: 1
-      }} exit={{
-        x: "100%",
-        opacity: 0
-      }} transition={{
-        type: "spring",
-        damping: 32,
-        stiffness: 260
-      }} className="relative w-full max-w-[450px] h-full bg-slate-950/95 dark:bg-[#071510]/95 backdrop-blur-2xl shadow-[0_0_100px_rgba(0,0,0,0.85)] flex flex-col border-l border-[#8b6f47]/30 dark:border-white/10"><div className="p-5 border-b border-white/10 relative overflow-hidden group"><div className="absolute top-0 right-0 p-8 opacity-[0.03] -rotate-12 translate-x-4 -translate-y-4 pointer-events-none transition-transform group-hover:scale-110 duration-700 text-white"><Comp_ua size={100} /></div><div className="flex justify-between items-center relative z-10"><div className="flex items-center gap-4"><div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center text-emerald-400 border border-white/10"><Comp_ua size={18} strokeWidth={2.5} /></div><div><h3 className="font-black text-[14px] text-white uppercase tracking-tighter leading-none mb-1">Lịch sử GD</h3><p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-emerald-500" />{v.name}</p></div></div><div className="flex items-center gap-2"><button onClick={() => j(!Xe)} className="w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white/60 hover:text-white rounded-xl transition-all border border-white/10 shadow-lg" title={Xe ? "Chế độ riêng tư" : "Hiện thông tin chi tiết"}>{Xe ? <$s size={16} strokeWidth={2.5} /> : <On size={16} strokeWidth={2.5} />}</button><button onClick={C} className="w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-rose-500/20 text-white/60 hover:text-rose-400 rounded-xl transition-all hover:rotate-90 border border-white/10 shadow-lg"><Comp_ke size={16} strokeWidth={3} /></button></div></div></div><div className="flex p-3 gap-2"><button onClick={() => dt("invoices")} className={c("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border-2", Ie === "invoices" ? "bg-emerald-500 border-white/10 text-white shadow-lg shadow-emerald-500/20" : "bg-white/5 border-white/5 text-white/50 hover:text-white hover:bg-white/10")}><Ja size={14} strokeWidth={3} /> Hóa đơn</button><button onClick={() => dt("products")} className={c("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border-2", Ie === "products" ? "bg-emerald-500 border-white/10 text-white shadow-lg shadow-emerald-500/20" : "bg-white/5 border-white/5 text-white/50 hover:text-white hover:bg-white/10")}><Comp_pi size={14} strokeWidth={3} /> Sản phẩm</button></div><P>{Ie === "invoices" && <x.div initial={{
-            opacity: 0,
-            y: -10
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} exit={{
-            opacity: 0,
-            y: -10
-          }} className="px-5 pb-3 flex flex-col gap-2 border-b border-white/5"><div className="flex items-center justify-between gap-2"><div className="flex gap-2">{[{
-                  id: "all",
-                  label: "Tất cả"
-                }, {
-                  id: "cash",
-                  label: "Tiền mặt"
-                }, {
-                  id: "debt",
-                  label: "Công nợ"
-                }].map(_ => <button key={_.id} onClick={() => Nt(_.id)} className={c("px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest transition-all border", Le === _.id ? "bg-white/20 border-white/40 text-white" : "bg-transparent border-white/5 text-white/30 hover:text-white/60")}>{_.label}</button>)}</div><button onClick={fe} className={c("px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest transition-all border flex items-center gap-1.5", ae ? "bg-amber-500/20 border-amber-500/40 text-amber-400 shadow-sm" : "bg-transparent border-white/5 text-white/30 hover:text-white/60")} title="Bật/Tắt hiển thị các đơn nhập hàng từ đối tác này"><span className={c("w-1.5 h-1.5 rounded-full", ae ? "bg-amber-400 animate-pulse" : "bg-white/20")} />{ae ? "Kèm Đơn Nhập" : "+ Đơn Nhập"}</button></div><div className="flex gap-2 bg-white/[0.02] p-1 rounded-lg border border-white/5">{[{
-                id: "all",
-                label: "Hiện Full"
-              }, {
-                id: "latest",
-                label: "Trả gần nhất → Nay"
-              }, {
-                id: "custom",
-                label: "Tùy chọn"
-              }].map(_ => <button key={_.id} onClick={() => D(_.id)} className={c("flex-1 py-1 rounded-md text-[7px] font-black uppercase tracking-wider transition-all border", E === _.id ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-md shadow-emerald-500/5" : "bg-transparent border-white/5 text-white/40 hover:text-white/70")}>{_.label}</button>)}</div>{E === "custom" && <div className="flex gap-2 items-center mt-1 bg-white/5 p-2 rounded-lg border border-white/5"><div className="flex-1 flex flex-col gap-0.5"><span className="text-[7px] text-white/40 uppercase font-black">Từ lần trả</span><select value={T} onChange={_ => Y(_.target.value)} className="w-full bg-[#022c22] border border-white/10 text-white text-[9px] rounded p-1 font-bold outline-none focus:border-emerald-500/50"><option value="">-- Chọn --</option>{rt.map(_ => <option key={_.id} value={_.id}>{_.display_id} ({ot(_.date)})</option>)}</select></div><span className="text-[8px] text-white/30 font-bold self-end mb-1.5">→</span><div className="flex-1 flex flex-col gap-0.5"><span className="text-[7px] text-white/40 uppercase font-black">Đến lần trả</span><select value={be} onChange={_ => Z(_.target.value)} className="w-full bg-[#022c22] border border-white/10 text-white text-[9px] rounded p-1 font-bold outline-none focus:border-emerald-500/50"><option value="">-- Chọn --</option>{rt.map(_ => <option key={_.id} value={_.id}>{_.display_id} ({ot(_.date)})</option>)}</select></div></div>}</x.div>}</P><div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-6 space-y-3">{ue && Lt === 1 ? <div className="flex flex-col items-center justify-center py-32"><div className="w-10 h-10 border-[3px] border-white/10 border-t-emerald-500 rounded-full animate-spin mb-6" /><span className="font-black text-[10px] text-emerald-400 uppercase tracking-[0.4em]">Đang nạp dữ liệu...</span></div> : Ie === "invoices" ? Qe.length === 0 ? <div className="text-center py-40 opacity-20"><Comp_ua size={60} strokeWidth={1} className="mx-auto mb-8 text-white" /><p className="font-black uppercase text-[10px] tracking-[0.4em] text-white">Trống trải...</p></div> : (() => {
-            let _ = [...Qe];
-            if (E === "latest") {
-              const f = _.findIndex(ne => ne.is_voucher && ne.type === "Receipt");
-              f !== -1 && (_ = _.slice(0, f + 1));
-            } else if (E === "custom" && T && be) {
-              const f = _.findIndex(me => me.id === T),
-                ne = _.findIndex(me => me.id === be);
-              if (f !== -1 && ne !== -1) {
-                const me = Math.min(f, ne),
-                  qe = Math.max(f, ne);
-                _ = _.slice(me, qe + 1);
-              }
-            }
-            const g = _.filter(f => {
-              if (Le === "all") return true;
-              if (Le === "cash") return !f.is_voucher && f.payment_method !== "Debt";
-              if (Le === "debt") return f.payment_method === "Debt" || (f.is_voucher && f.type === "DebtIncrease");
-              return true;
-            });
-            return <div className="relative pl-7 space-y-2 pt-4"><div className="absolute left-[13px] top-4 bottom-4 w-px bg-white/10" />{g.map((f, ne) => <div key={f.id || ne} className="relative"><div className={c("absolute left-[-22px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-10", f.type === "Purchase" ? "bg-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.9)]" : f.type === "DebtIncrease" ? "bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.9)]" : f.type === "Receipt" ? "bg-teal-400 shadow-[0_0_10px_rgba(20,184,166,0.9)]" : f.type === "Payment" ? "bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]" : "bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]")} /><div className={c("p-3 rounded-2xl border transition-all group flex flex-col cursor-pointer relative overflow-hidden backdrop-blur-sm", f.type === "Purchase" ? "bg-gradient-to-br from-indigo-950/60 via-slate-900/70 to-indigo-950/40 border-indigo-500/40 hover:border-indigo-400 hover:from-indigo-950/80 shadow-[0_4px_25px_rgba(99,102,241,0.12)]" : f.type === "DebtIncrease" ? "bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-amber-950/30 border-amber-500/40 hover:border-amber-400 shadow-[0_4px_25px_rgba(245,158,11,0.12)]" : f.type === "Receipt" ? "bg-gradient-to-br from-teal-950/50 via-slate-900/70 to-teal-950/30 border-teal-500/40 hover:border-teal-400 shadow-[0_4px_25px_rgba(20,184,166,0.12)]" : f.type === "Payment" ? "bg-gradient-to-br from-rose-950/50 via-slate-900/70 to-rose-950/30 border-rose-500/40 hover:border-rose-400 shadow-[0_4px_25px_rgba(244,63,94,0.12)]" : "bg-gradient-to-br from-emerald-950/40 via-slate-900/70 to-emerald-950/20 border-emerald-500/35 hover:border-emerald-400 shadow-[0_4px_25px_rgba(16,185,129,0.08)]")} onClick={me => {
-                  !f.is_voucher && xe && xe(f);
-                }}><div className="flex items-center justify-between w-full"><div className="flex items-center gap-2.5 flex-1 min-w-0"><div className={c("w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-inner border", f.type === "Purchase" ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" : f.type === "DebtIncrease" ? "bg-amber-500/20 text-amber-300 border-amber-500/30" : f.type === "Receipt" ? "bg-teal-500/20 text-teal-300 border-teal-500/30" : f.type === "Payment" ? "bg-rose-500/20 text-rose-300 border-rose-500/30" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30")}>{f.type === "Purchase" ? <Comp_ui size={14} strokeWidth={2.5} /> : f.type === "DebtIncrease" ? <Hs size={14} strokeWidth={2.5} /> : f.is_voucher ? <Ks size={14} strokeWidth={2.5} /> : Xe ? <$s size={14} strokeWidth={2.5} /> : <On size={14} strokeWidth={2.5} />}</div><div className="min-w-0"><div className={c("text-[12px] font-black uppercase tracking-wide leading-none mb-1 truncate pr-2 flex items-center gap-1", f.type === "Purchase" ? "text-indigo-200 font-extrabold" : f.type === "DebtIncrease" ? "text-amber-200 font-extrabold" : f.type === "Receipt" ? "text-teal-200 font-extrabold" : f.type === "Payment" ? "text-rose-200 font-extrabold" : "text-emerald-100 font-extrabold")}>{f.type === "Receipt" && <Va size={12} className="shrink-0" />}{Xe ? f.is_voucher ? f.type === "DebtIncrease" ? "Ghi nợ" : f.type === "Receipt" ? `Thu tiền #${f.id.split("_")[1]}` : `Chi tiền #${f.id.split("_")[1]}` : f.display_id ? `#${f.display_id}` : `#${f.id}` : "********"}</div><div className="flex items-center gap-2"><span className="text-[9px] font-black text-white/40 tabular-nums uppercase">{Xe ? f.time : "--:--"}</span>{f.type === "Purchase" ? <div className="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider border bg-indigo-500/25 text-indigo-200 border-indigo-400/40">NHẬP</div> : !f.is_voucher && <div className="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider border bg-emerald-500/25 text-emerald-200 border-emerald-400/40">BÁN</div>}<div className={c("text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tight border", f.payment_method === "Debt" ? "bg-amber-500/20 text-amber-300 border-amber-500/30" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30")}>{f.payment_method === "Debt" ? "NỢ" : "T.MẶT"}</div></div></div></div><div className="flex items-center gap-2 pl-2 shrink-0"><div className={c("text-[15px] font-black tracking-tighter tabular-nums text-right leading-none drop-shadow-md", f.type === "Purchase" ? "text-indigo-300" : f.type === "DebtIncrease" ? "text-amber-300" : f.type === "Receipt" ? "text-teal-300" : f.type === "Payment" ? "text-rose-300" : "text-emerald-300")}>{z(f.total_amount || f.total)}</div><div className="flex flex-col gap-1 transition-all duration-200 opacity-0 scale-90 translate-x-1 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 w-0 group-hover:w-auto overflow-hidden"><button onClick={me => {
-                          me.stopPropagation(), f.is_voucher ? we && we(f) : W && W(f);
-                        }} className="p-1 bg-white/10 hover:bg-white/20 text-white/40 hover:text-white rounded-md transition-all"><Comp_yd size={10} /></button><button onClick={me => {
-                          me.stopPropagation(), f.is_voucher ? Oe && Oe(f) : pe && pe(f.id);
-                        }} className="p-1 bg-rose-500/10 hover:bg-rose-500/30 text-white/40 hover:text-rose-400 rounded-md transition-all"><Comp_pa size={10} /></button></div></div></div>{Xe && f.details && f.details.length > 0 && <div className="border-t border-white/10 mt-2.5 pt-2 flex flex-wrap gap-1">{f.details.slice(0, 3).map((me, qe) => <div key={qe} className={c("px-1.5 py-0.5 border rounded-md text-[8px] font-black uppercase flex items-center gap-1 transition-all", f.type === "Purchase" ? "bg-indigo-500/15 border-indigo-500/30 text-indigo-200 hover:bg-indigo-500/25" : "bg-emerald-500/15 border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/25")}><span className="truncate max-w-[70px]">{me.product_name}</span><div className={c("w-px h-1.5", f.type === "Purchase" ? "bg-indigo-500/40" : "bg-emerald-500/40")} /><span className={f.type === "Purchase" ? "text-indigo-300" : "text-emerald-300"}>{z(me.quantity)}</span></div>)}{f.details.length > 3 && <div className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md text-[8px] font-black text-white/40 uppercase tracking-tighter">+{f.details.length - 3} món</div>}</div>}</div></div>)}{$t && <button onClick={Ht} disabled={ue} className="w-full py-3 rounded-xl border border-white/5 text-white/30 text-[8px] font-black uppercase tracking-[0.4em] hover:bg-white/5 hover:text-white transition-all active:scale-[0.98]">{ue ? "Đang truy xuất..." : "Tải thêm"}</button>}</div>;
-          })() : at.length === 0 ? <div className="text-center py-40 opacity-20"><Qa size={60} strokeWidth={1} className="mx-auto mb-8 text-white" /><p className="font-black uppercase text-[10px] tracking-[0.4em] text-white">Trống trải...</p></div> : at.map(_ => <div key={_.id} className="bg-white/[0.04] p-3 rounded-xl border border-white/5 hover:border-emerald-500/40 transition-colors flex items-center justify-between hover:bg-white/[0.08]"><div className="flex-1 min-w-0 pr-3"><div className="font-black text-[12px] text-white uppercase truncate mb-1" title={_.name}>{_.name}</div><div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-400 bg-emerald-500/5 px-1.5 py-0.5 rounded-md border border-emerald-500/5 tabular-nums">Tổng {z(_.total_qty)} {_.unit}</span><span className="text-[9px] font-black text-white/20 tabular-nums">Giá cuối: {z(_.last_price)}</span></div></div><button onClick={() => X(_)} className="w-8 h-8 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg shadow-lg flex items-center justify-center transition-all border border-emerald-500/5 active:scale-90"><Ed size={14} strokeWidth={2.5} /></button></div>)}</div></x.div></div>}</P>;
-}
-const Ed = ({
-    size: v,
-    strokeWidth: N
-  }) => <svg width={v} height={v} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={N} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
-  qd = i.forwardRef(({
-    className: v,
-    ...N
-  }, C) => <div className="relative w-full overflow-auto"><table ref={C} className={c("w-full caption-bottom text-sm", v)} {...N} /></div>);
-qd.displayName = "Table";
-const Md = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <thead ref={C} className={c("[&_tr]:border-b", v)} {...N} />);
-Md.displayName = "TableHeader";
-const Wd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <tbody ref={C} className={c("[&_tr:last-child]:border-0", v)} {...N} />);
-Wd.displayName = "TableBody";
-const Rd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <tfoot ref={C} className={c("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", v)} {...N} />);
-Rd.displayName = "TableFooter";
-const Ad = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <tr ref={C} className={c("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", v)} {...N} />);
-Ad.displayName = "TableRow";
-const Od = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <th ref={C} className={c("h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]", v)} {...N} />);
-Od.displayName = "TableHead";
-const Ld = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <td ref={C} className={c("p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]", v)} {...N} />);
-Ld.displayName = "TableCell";
-const $d = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <caption ref={C} className={c("mt-4 text-sm text-muted-foreground", v)} {...N} />);
-$d.displayName = "TableCaption";
-const Hd = Pl("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline"
-      },
-      size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9"
-      }
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default"
-    }
-  }),
-  Kd = i.forwardRef(({
-    className: v,
-    variant: N,
-    size: C,
-    asChild: X = !1,
-    ...xe
-  }, W) => {
-    const pe = X ? gd : "button";
-    return <Comp_pe className={c(Hd({
-      variant: N,
-      size: C,
-      className: v
-    }))} ref={W} {...xe} />;
-  });
-Kd.displayName = "Button";
-const Gd = i.forwardRef(({
-  className: v,
-  type: N,
-  ...C
-}, X) => <input type={N} className={c("flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", v)} ref={X} {...C} />);
-Gd.displayName = "Input";
-const Ud = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("rounded-xl border bg-card text-card-foreground shadow", v)} {...N} />);
-Ud.displayName = "Card";
-const Bd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("flex flex-col space-y-1.5 p-6", v)} {...N} />);
-Bd.displayName = "CardHeader";
-const Fd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("font-semibold leading-none tracking-tight", v)} {...N} />);
-Fd.displayName = "CardTitle";
-const Vd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("text-sm text-muted-foreground", v)} {...N} />);
-Vd.displayName = "CardDescription";
-const Qd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("p-6 pt-0", v)} {...N} />);
-Qd.displayName = "CardContent";
-const Xd = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <div ref={C} className={c("flex items-center p-6 pt-0", v)} {...N} />);
-Xd.displayName = "CardFooter";
-const Jd = i.forwardRef(({
-  className: v,
-  children: N,
-  ...C
-}, X) => <Comp_si ref={X} className={c("relative overflow-hidden", v)} {...C}><Comp_pd className="h-full w-full rounded-[inherit]">{N}</Comp_pd><Comp_mi /><Comp_ud /></Comp_si>);
-Jd.displayName = si.displayName;
-const mi = i.forwardRef(({
-  className: v,
-  orientation: N = "vertical",
-  ...C
-}, X) => <Comp_ni ref={X} orientation={N} className={c("flex touch-none select-none transition-colors", N === "vertical" && "h-full w-2.5 border-l border-l-transparent p-[1px]", N === "horizontal" && "h-2.5 flex-col border-t border-t-transparent p-[1px]", v)} {...C}><Comp_md className="relative flex-1 rounded-full bg-border" /></Comp_ni>);
-mi.displayName = ni.displayName;
-const Yd = xd,
-  xi = i.forwardRef(({
-    className: v,
-    ...N
-  }, C) => <Comp_ii ref={C} className={c("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", v)} {...N} />);
-xi.displayName = ii.displayName;
-const Zd = i.forwardRef(({
-  className: v,
-  children: N,
-  ...C
-}, X) => <Yd><Comp_xi /><Comp_li ref={X} className={c("fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg", v)} {...C}>{N}<Comp_hd className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"><Comp_ke className="h-4 w-4" /><span className="sr-only">Close</span></Comp_hd></Comp_li></Yd>);
-Zd.displayName = li.displayName;
-const ec = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <Comp_oi ref={C} className={c("text-lg font-semibold leading-none tracking-tight", v)} {...N} />);
-ec.displayName = oi.displayName;
-const tc = i.forwardRef(({
-  className: v,
-  ...N
-}, C) => <Comp_di ref={C} className={c("text-sm text-muted-foreground", v)} {...N} />);
-tc.displayName = di.displayName;
-function ac({
-  isOpen: v,
-  onClose: N,
-  onViewOrder: C
-}) {
-  const X = ci(),
-    [xe, W] = i.useState([]),
-    [pe, we] = i.useState(!1),
-    [Oe, Qe] = i.useState("Shipping"),
-    [te, at] = i.useState(""),
-    [B, ue] = i.useState(null),
-    [je, Ie] = i.useState(null),
-    [dt, Le] = i.useState(null),
-    [Nt, Lt] = i.useState(new Date().toLocaleDateString("en-CA"));
-  i.useEffect(() => {
-    v && he();
-  }, [v, Nt]);
-  const he = async () => {
-      we(!0);
-      try {
-        const j = await M.get("/api/orders?shipping_status=Shipping&limit=100&sort_by=date&sort_order=desc"),
-          E = j.data.items || j.data,
-          [D, T, Y] = Nt.split("-"),
-          be = await M.get(`/api/orders?shipping_status=Delivered&delivered_year=${D}&delivered_month=${T}&delivered_day=${Y}&limit=100&sort_by=date&sort_order=desc`),
-          Z = be.data.items || be.data;
-        W([...E, ...Z]);
-      } catch (j) {
-        console.error("Error fetching shipping orders:", j), At.error("Không thể tải danh sách giao hàng.");
-      } finally {
-        we(!1);
-      }
-    },
-    $t = async (j, E) => {
-      try {
-        await M.patch(`/api/orders/${j}/shipping-status`, {
-          shipping_status: E
-        }), E === null ? (W(D => D.filter(T => T.id !== j)), Le(null), At.success("Đã gỡ đơn khỏi danh sách giao hàng.")) : (W(D => D.map(T => T.id === j ? {
-          ...T,
-          shipping_status: E
-        } : T)), At.success(E === "Delivered" ? "Đã giao hàng thành công!" : "Đã hoàn tác trạng thái.")), X.invalidateQueries(["shippingSummary"]);
-      } catch (D) {
-        console.error("Error updating shipping status:", D), At.error("Không thể cập nhật trạng thái.");
-      }
-    },
-    _e = async (j, E) => {
-      const D = At.loading("Đang cập nhật...");
-      try {
-        const T = await M.patch(`/api/order-details/${j.id}/shipped-quantity`, {
-            shipped_quantity: E
-          }),
-          {
-            order_shipping_status: Y
-          } = T.data;
-        W(be => be.map(Z => {
-          if (Z.details?.some(ae => ae.id === j.id)) {
-            const ae = Z.details.map(bt => bt.id === j.id ? {
-              ...bt,
-              shipped_quantity: E
-            } : bt);
-            return {
-              ...Z,
-              details: ae,
-              shipping_status: Y
-            };
-          }
-          return Z;
-        })), Ie(null), X.invalidateQueries(["shippingSummary"]), At.success("Cập nhật số lượng thành công!", {
-          id: D
-        });
-      } catch (T) {
-        console.error("Error updating item shipped qty:", T), At.error("Không thể cập nhật số lượng.", {
-          id: D
-        });
-      }
-    },
-    Xe = xe.filter(j => (Oe === "any" || j.shipping_status === Oe) && (j.display_id?.toLowerCase().includes(te.toLowerCase()) || j.partner_name?.toLowerCase().includes(te.toLowerCase()) || j.shipping_phone?.includes(te)));
-  return <Ee><P>{v && <div className="fixed inset-0 z-[500000] flex justify-end font-sans"><x.div initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} exit={{
-          opacity: 0
-        }} onClick={N} className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm" /><x.div initial={{
-          x: "100%",
-          opacity: 0
-        }} animate={{
-          x: 0,
-          opacity: 1
-        }} exit={{
-          x: "100%",
-          opacity: 0
-        }} transition={{
-          type: "spring",
-          damping: 25,
-          stiffness: 200
-        }} className="relative w-[650px] h-full bg-card backdrop-blur-3xl flex flex-col border-l border-border shadow-2xl text-foreground"><div className="p-6 border-b border-border bg-card flex justify-between items-center relative overflow-hidden shrink-0"><div className="flex items-center gap-3.5 relative z-10"><div className="w-11 h-11 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]"><Comp_u_t size={20} className="text-primary" /></div><div><h3 className="font-black text-lg text-foreground uppercase tracking-wider leading-tight">Giao Hàng</h3><div className="flex gap-2.5 mt-2"><span className="text-[9px] font-black text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_10px_rgba(var(--primary-rgb),0.1)]"><span className="w-1.5 h-1.5 rounded-full bg-primary" />{`${xe.filter(j => j.shipping_status === "Shipping").length} ĐANG CHẠY`}</span><span className="text-[9px] font-black text-muted-foreground bg-background/50 border border-border px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />{`${xe.filter(j => j.shipping_status === "Delivered").length} HOÀN TẤT`}</span></div></div></div><button onClick={N} className="w-9 h-9 flex items-center justify-center rounded-xl bg-background hover:bg-primary/10 text-muted-foreground hover:text-primary border border-border transition-all duration-300 hover:rotate-90"><Comp_ke size={16} strokeWidth={3} /></button></div><div className="p-6 space-y-4 bg-card border-b border-border"><div className="flex gap-3.5"><div className="relative flex-1 group"><Gs className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} /><input type="text" placeholder="Tìm mã đơn, tên khách..." className="w-full h-11 pl-11 pr-4 bg-background border border-border focus:border-primary rounded-xl text-sm font-semibold transition-all outline-none text-foreground focus:ring-1 focus:ring-primary placeholder-muted-foreground/50" value={te} onChange={j => at(j.target.value)} /></div><div className="relative w-40 group"><Comp_vd className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" size={16} /><input type="date" className="w-full h-11 pl-9 pr-2 bg-background border border-border focus:border-primary rounded-xl text-xs font-semibold transition-all outline-none text-foreground focus:ring-1 focus:ring-primary appearance-none uppercase" value={Nt} onChange={j => Lt(j.target.value)} /></div></div><div className="flex gap-3.5">{[{
-                label: "Đang giao",
-                value: "Shipping",
-                icon: Ja
-              }, {
-                label: "Đã giao",
-                value: "Delivered",
-                icon: zr
-              }].map(j => {
-                const E = Oe === j.value;
-                return <button key={j.value} onClick={() => Qe(j.value)} className={c("flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 border active:scale-98 cursor-pointer", E ? "bg-primary/10 border-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]" : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-background/80")}><j.icon size={14} strokeWidth={3} /><span>{j.label}</span></button>;
-              })}</div></div><div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-4 bg-transparent">{pe ? <div className="flex flex-col items-center justify-center py-20 opacity-50"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" /><span className="font-black text-[10px] uppercase text-primary tracking-[0.2em]">Đang tải đơn hàng...</span></div> : Xe.length === 0 ? <div className="text-center py-20 text-muted-foreground opacity-60"><Comp_u_t size={48} className="mx-auto mb-4 opacity-10" /><p className="font-black uppercase text-[10px] tracking-[0.25em]">Không tìm thấy đơn nào</p></div> : Xe.map((j, E) => <x.div key={j.id} initial={{
-              opacity: 0,
-              y: 10
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              delay: E * 0.05
-            }} className={c("p-4 rounded-2xl border transition-all duration-300 group flex flex-col relative overflow-hidden bg-background/50 border-border/80 hover:border-primary/30 hover:bg-background hover:shadow-md", j.shipping_status === "Delivered" && "hover:border-blue-550/30")}><div className="flex items-center justify-between w-full mb-3"><div className="flex items-center gap-3 flex-1 min-w-0"><div className={c("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-inner", j.shipping_status === "Delivered" ? "bg-blue-500/10 text-blue-555" : "bg-primary/10 text-primary")}>{j.shipping_status === "Delivered" ? <Comp_zr size={14} strokeWidth={2.5} /> : <Comp_u_t size={14} strokeWidth={2.5} />}</div><div className="min-w-0"><div className={c("text-[13px] font-black uppercase tracking-wider leading-none mb-1.5 flex items-center gap-1", j.shipping_status === "Delivered" ? "text-blue-600" : "text-primary")}>#{j.display_id}</div><div className="flex items-center gap-2.5"><span className="text-[9px] font-black text-muted-foreground tabular-nums uppercase tracking-wide">{j.shipping_status === "Delivered" ? j.delivery_date ? ot(j.delivery_date) : ot(j.date) : ot(j.date)}</span><div className={c("text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border", j.shipping_status === "Delivered" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" : "bg-primary/10 text-primary border-primary/20")}>{j.partner_name || "Khách lẻ"}</div></div></div></div><div className="flex items-center gap-3.5 shrink-0"><div className={c("text-[16px] font-black tracking-tight tabular-nums text-right leading-none text-foreground", j.shipping_status === "Delivered" ? "text-blue-600" : "text-primary")}>{z(j.total_amount)}</div><button onClick={D => {
-                    D.stopPropagation(), Le(j.id);
-                  }} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 hover:text-rose-700 rounded-lg transition-all border border-rose-500/25 active:scale-95 duration-200 cursor-pointer" title="Hủy giao hàng"><Comp_ke size={10} strokeWidth={3} /></button></div></div><div className="flex gap-2 items-center mb-4 bg-background p-2.5 rounded-xl border border-border"><div className="flex items-center gap-2 flex-1 min-w-0"><Us size={11} className="text-primary shrink-0" /><span className="text-[10px] font-semibold text-muted-foreground truncate">{j.shipping_address || <span className="italic opacity-30">N/A</span>}</span></div><div className="w-px h-3.5 bg-border shrink-0" /><div className="flex items-center gap-2 shrink-0"><Mr size={11} className="text-blue-500 shrink-0" /><span className="text-[10px] font-black text-foreground tracking-wide">{j.shipping_phone || <span className="italic opacity-30">N/A</span>}</span></div></div><div className="flex gap-2"><button onClick={() => ue(j.id)} className="flex-1 py-2.5 bg-background hover:bg-primary/10 text-muted-foreground hover:text-primary rounded-xl transition-all border border-border text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 duration-200 cursor-pointer"><Comp_kd size={10} /> Bốc hàng</button><button onClick={() => C(j)} className="w-9 h-9 bg-background hover:bg-primary/10 text-muted-foreground hover:text-primary rounded-xl transition-all border border-border flex items-center justify-center active:scale-95 duration-200 cursor-pointer"><Comp_wd size={10} /></button>{j.shipping_status === "Shipping" && <button onClick={() => $t(j.id, "Delivered")} className="flex-1 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 hover:text-emerald-700 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 duration-200 shadow-sm cursor-pointer"><Comp_zr size={10} strokeWidth={3} /> XONG</button>}{j.shipping_status === "Delivered" && <button onClick={() => $t(j.id, "Shipping")} className="flex-1 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 hover:text-amber-700 border border-amber-500/20 hover:border-amber-500/40 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 duration-200 shadow-sm cursor-pointer"><Xa size={10} /> HOÀN TÁC</button>}</div></x.div>)}</div></x.div></div>}</P><P>{B && <div className="fixed inset-0 z-[600000] flex items-center justify-center p-4 bg-slate-950/40 dark:bg-black/60 overflow-y-auto"><x.div initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} exit={{
-          opacity: 0
-        }} onClick={() => ue(null)} className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm" /><x.div initial={{
-          scale: 0.95,
-          opacity: 0,
-          y: 20
-        }} animate={{
-          scale: 1,
-          opacity: 1,
-          y: 0
-        }} exit={{
-          scale: 0.95,
-          opacity: 0,
-          y: 20
-        }} className="relative w-full max-w-xl bg-card border border-border rounded-[2rem] overflow-hidden shadow-2xl flex flex-col font-sans text-foreground">{(() => {
-            const j = xe.find(D => D.id === B);
-            if (!j) return null;
-            const E = Math.round(j.details?.reduce((D, T) => D + (T.shipped_quantity || 0), 0) / j.details?.reduce((D, T) => D + T.quantity, 0) * 100);
-            return <><div className="p-6 border-b border-border flex justify-between items-center bg-card"><div><h4 className="text-lg font-black text-foreground uppercase tracking-wider">📦 Bốc hàng #{j.display_id}</h4><p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">{j.partner_name || "Khách lẻ"}</p></div><div className="text-right flex flex-col items-end"><div className="text-[8px] font-black text-primary uppercase tracking-widest mb-1.5">Tiến độ bốc hàng</div><div className="text-2xl font-black text-primary flex items-baseline gap-0.5 leading-none">{E}<span className="text-xs text-primary/60 font-bold">%</span></div></div></div><div className="w-full h-1 bg-background overflow-hidden"><div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-500 ease-out" style={{
-                  width: `${E}%`
-                }} /></div><div className="max-h-[50vh] overflow-y-auto p-6 space-y-3.5 no-scrollbar bg-card/50">{j.details?.map(D => {
-                  const T = (D.shipped_quantity || 0) >= D.quantity;
-                  return <div key={D.id} className={c("flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 bg-background/50 border-border/80 shadow-sm", T ? "bg-emerald-500/5 border-emerald-500/20 opacity-60" : "hover:bg-background hover:border-border")}><div className="flex-1 min-w-0"><div className={c("text-base font-black uppercase tracking-tight text-foreground", T && "line-through text-muted-foreground/45 decoration-emerald-500/50")}>{D.product_name}</div><div className="text-xs font-bold text-muted-foreground mt-1.5 flex items-center gap-1">Đã bốc: <span className="text-foreground font-black">{D.shipped_quantity || 0}</span> / {D.quantity} {D.unit}</div></div><div className="flex items-center gap-2.5">{je?.detailId === D.id ? <input type="number" autoFocus={!0} className="w-20 h-10 bg-background border-2 border-primary rounded-xl text-lg font-black text-center text-foreground outline-none focus:ring-1 focus:ring-primary" value={je.value} onChange={Y => Ie({
-                        ...je,
-                        value: Y.target.value
-                      })} onBlur={() => _e(D, parseFloat(je.value) || 0)} onKeyDown={Y => Y.key === "Enter" && _e(D, parseFloat(je.value) || 0)} /> : <button onClick={() => Ie({
-                        detailId: D.id,
-                        value: D.shipped_quantity || 0
-                      })} className="p-3 bg-background hover:bg-primary/10 rounded-xl text-muted-foreground hover:text-primary transition-all border border-border active:scale-95 cursor-pointer"><Gs size={16} /></button>}<button onClick={() => _e(D, T ? 0 : D.quantity)} className={c("w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md cursor-pointer", T ? "bg-primary text-white shadow-primary/20" : "bg-background border border-border text-muted-foreground/30 hover:border-primary/50 hover:text-primary")}><Comp_zr size={20} /></button></div></div>;
-                })}</div><div className="p-6 border-t border-border bg-card shrink-0"><button onClick={() => ue(null)} className="w-full h-12 bg-primary hover:bg-primary-hover text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-98 duration-200 cursor-pointer">Đóng danh sách</button></div></>;
-          })()}</x.div></div>}</P><P>{dt && <div className="fixed inset-0 z-[600000] flex items-center justify-center p-4 bg-slate-950/40 dark:bg-black/60 overflow-y-auto"><x.div initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} exit={{
-          opacity: 0
-        }} onClick={() => Le(null)} className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-sm" /><x.div initial={{
-          scale: 0.9,
-          opacity: 0,
-          y: 20
-        }} animate={{
-          scale: 1,
-          opacity: 1,
-          y: 0
-        }} exit={{
-          scale: 0.9,
-          opacity: 0,
-          y: 20
-        }} className="relative w-full max-w-sm bg-card rounded-[32px] p-8 shadow-2xl overflow-hidden border border-border"><div className="absolute top-0 left-0 w-full h-2 bg-rose-500" /><div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/20 rounded-2xl flex items-center justify-center text-rose-500 mb-6 mx-auto"><Comp_u_t size={32} /></div><h3 className="text-xl font-black text-foreground text-center uppercase tracking-tight mb-2">Gỡ danh sách ship?</h3><p className="text-sm text-muted-foreground text-center font-medium leading-relaxed mb-8">Bạn có chắc chắn muốn gỡ đơn hàng này không? Đơn hàng vẫn được lưu lại trong lịch sử bán hàng.</p><div className="flex gap-3"><button onClick={() => Le(null)} className="flex-1 h-12 bg-transparent text-muted-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-background/80 transition-all">Bỏ qua</button><button onClick={() => $t(dt, null)} className="flex-1 h-12 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 shadow-lg shadow-rose-500/20 transition-all">Gỡ ngay</button></div></x.div></div>}</P></Ee>;
-}
-const Comp_ua = props => React.createElement(ua, props);
-const Comp_ke = props => React.createElement(ke, props);
-const Comp_pi = props => React.createElement(pi, props);
-const Comp_ui = props => React.createElement(ui, props);
-const Comp_yd = props => React.createElement(yd, props);
-const Comp_pa = props => React.createElement(pa, props);
-const Comp_pe = props => React.createElement(pe, props);
-const Comp_pd = props => React.createElement(pd, props);
-const Comp_mi = props => React.createElement(mi, props);
-const Comp_ud = props => React.createElement(ud, props);
-const Comp_si = props => React.createElement(si, props);
-const Comp_md = props => React.createElement(md, props);
-const Comp_ni = props => React.createElement(ni, props);
-const Comp_ii = props => React.createElement(ii, props);
-const Comp_xi = props => React.createElement(xi, props);
-const Comp_hd = props => React.createElement(hd, props);
-const Comp_li = props => React.createElement(li, props);
-const Comp_oi = props => React.createElement(oi, props);
-const Comp_di = props => React.createElement(di, props);
-const Comp_u_t = props => React.createElement(_t, props);
-const Comp_vd = props => React.createElement(vd, props);
-const Comp_zr = props => React.createElement(zr, props);
-const Comp_kd = props => React.createElement(kd, props);
-const Comp_wd = props => React.createElement(wd, props);
-const Comp_ei = props => React.createElement(ei, props);
-const Comp_jt = props => React.createElement(jt, props);
-const Comp_qs = props => React.createElement(qs, props);
-const Comp_jd = props => React.createElement(jd, props);
-const Comp_co = props => React.createElement(co, props);
-const Comp_la = props => React.createElement(la, props);
-const Comp_uo = props => React.createElement(uo, props);
-const Comp_mo = props => React.createElement(mo, props);
-const Comp_xo = props => React.createElement(xo, props);
-const Comp_ho = props => React.createElement(ho, props);
-const Comp_u_d = props => React.createElement(_d, props);
-const Comp_go = props => React.createElement(go, props);
-const Comp_qr = props => React.createElement(qr, props);
-const Comp_da = props => React.createElement(da, props);
-const Comp_ca = props => React.createElement(ca, props);
-const Comp_oa = props => React.createElement(oa, props);
-const Comp_ti = props => React.createElement(ti, props);
-const Comp_zn = props => React.createElement(zn, props);
-const Comp_qo = props => React.createElement(qo, props);
-const Comp_zd = props => React.createElement(zd, props);
-const Comp_td = props => React.createElement(td, props);
-const Comp_ed = props => React.createElement(ed, props);
-const Comp_nd = props => React.createElement(nd, props);
-const Comp_ac = props => React.createElement(ac, props);
-const Comp_id = props => React.createElement(id, props);
-const Comp_ad = props => React.createElement(ad, props);
-const Comp_rd = props => React.createElement(rd, props);
-const Comp_sd = props => React.createElement(sd, props);
-const Comp_ld = props => React.createElement(ld, props);
-const Comp_ri = props => React.createElement(ri, props);
-const Comp_ai = props => React.createElement(ai, props);
-const Comp_fd = props => React.createElement(fd, props);
-function a0({
+  };
+
+function POSPage({
   onToggleTheme: v,
   currentTheme: N
 }) {
@@ -2942,13 +2424,14 @@ function a0({
           const rawAlias = (fullProduct.alias && fullProduct.alias.trim()) || (t.alias && t.alias.trim()) || "";
           const hasAlias = Boolean(rawAlias);
           const alias = rawAlias;
+          const isFirstAdd = !o; // Nếu chưa có trong giỏ hàng thì mới đọc tên alias
           
-          if (b && hasAlias && shouldReadQty) {
+          if (b && hasAlias && isFirstAdd && shouldReadQty) {
             S === "qty_first" 
               ? speakAudioSequence([U, alias]) 
               : speakAudioSequence([alias, U]);
             rr.current[g] = t.id;
-          } else if (b && hasAlias) {
+          } else if (b && hasAlias && isFirstAdd) {
             speakAudioSequence([alias]);
             rr.current[g] = t.id;
           } else if (shouldReadQty) {
@@ -6522,4 +6005,4 @@ function a0({
               Sn(t);
             }} /></Fn></div></div>{(fa || ya) && (fa && fa.details && fa.details.length > 0 || ya && ya.details && ya.details.length > 0) && <div className="only-print"><PrintTemplate data={fa || ya} settings={J} type={Gi || "Sale"} isPreview={false} showOldDebt={Ke.showOldDebt} showPayment={Ke.showPayment} showRemaining={Ke.showRemaining} showCashGiven={Ke.showCashGiven} showChange={Ke.showChange} /></div>}</></Comp_fd>;
 }
-export { a0 as default };
+export default POSPage;

@@ -13,16 +13,19 @@ import CustomCursor from './components/CustomCursor';
 import { checkIsAdmin } from './lib/auth';
 import axios from 'axios';
 
-const DEFAULT_PORT = import.meta.env.DEV ? '3580' : '3579';
+const DEFAULT_PORT = import.meta.env.VITE_BACKEND_PORT || (import.meta.env.DEV ? '3588' : '3579');
 
 const resolveApiUrl = (val) => {
     if (!val) return '';
     let clean = val.trim();
     if (/^https?:\/\//i.test(clean)) return clean;
     if (clean.toLowerCase() === 'localhost') return `http://localhost:${DEFAULT_PORT}`;
-    const hasLetters = /[a-zA-Z]/.test(clean);
+    const hasLetters = /[a-zA-Z]/.test(clean) && !clean.includes(':');
     if (hasLetters) {
         return `https://${clean}`;
+    }
+    if (clean.includes(':')) {
+        return `http://${clean}`;
     }
     return `http://${clean}:${DEFAULT_PORT}`;
 };

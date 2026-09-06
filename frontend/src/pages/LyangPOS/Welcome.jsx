@@ -305,18 +305,18 @@ export default function Welcome() {
         let cleaned = input.trim();
         cleaned = cleaned.replace(/^(https?:\/\/)/i, '');
         cleaned = cleaned.replace(/\/+$/, '');
-        cleaned = cleaned.replace(/:\d+$/, '');
         return cleaned;
     };
 
     const resolveApiUrl = (val) => {
         if (!val) return '';
         let clean = val.trim();
-        const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3580' : '3579';
+        const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_PORT) || ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3588' : '3588');
         if (/^https?:\/\//i.test(clean)) return clean;
         if (clean.toLowerCase() === 'localhost') return `http://localhost:${defaultPort}`;
-        const hasLetters = /[a-zA-Z]/.test(clean);
+        const hasLetters = /[a-zA-Z]/.test(clean) && !clean.includes(':');
         if (hasLetters) return `https://${clean}`;
+        if (clean.includes(':')) return `http://${clean}`;
         return `http://${clean}:${defaultPort}`;
     };
 
@@ -366,13 +366,13 @@ export default function Welcome() {
             }
         } catch (err) {
             setConnectionStatus('failed');
-            let errorMsg = 'Không thể kết nối đến máy chủ.';
+            const targetUrl = resolveApiUrl(cleanedIp);
             if (window.location.protocol === 'https:') {
-                errorMsg = `Safari trên iOS chặn kết nối HTTP nội bộ khi truy cập qua Vercel HTTPS. Vui lòng mở đường dẫn: http://${cleanedIp}:3579`;
+                errorMsg = `Safari trên iOS chặn kết nối HTTP nội bộ khi truy cập qua HTTPS. Vui lòng mở đường dẫn: ${targetUrl}`;
             } else if (err && err.name === 'AbortError') {
                 errorMsg = 'Hết thời gian chờ kết nối (Timeout 3.5s). Vui lòng kiểm tra IP và kết nối WiFi.';
             } else if (err && (err.name === 'TypeError' || String(err).includes('Fetch') || String(err).includes('Load failed'))) {
-                errorMsg = `Không thể kết nối tới http://${cleanedIp}:3579. Đảm bảo cùng kết nối chung một mạng LAN/WiFi.`;
+                errorMsg = `Không thể kết nối tới ${targetUrl}. Đảm bảo cùng kết nối chung một mạng LAN/WiFi.`;
             } else {
                 errorMsg = typeof err === 'string' ? err : (err && err.message ? err.message : String(err));
             }

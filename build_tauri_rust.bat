@@ -30,7 +30,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo [*] Buoc 1: Bien dich Backend Rust che do Release (sieu nhanh va toi uu)...
+echo [*] Buoc 1: Bien dich Backend Rust che do Release (sieu nhanh va nhe)...
 cd /d "%~dp0backend-rust"
 cargo build --release
 if %ERRORLEVEL% NEQ 0 goto :error_backend

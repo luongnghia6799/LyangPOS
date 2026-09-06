@@ -454,7 +454,7 @@ const PrintTemplate = forwardRef(({
             return normalized;
         }
         const savedIp = localStorage.getItem('server_ip');
-        const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3580' : '3579';
+        const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_PORT) || ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3588' : '3588');
         let base = `http://localhost:${defaultPort}`;
         if (savedIp && savedIp !== 'undefined' && savedIp !== 'null' && savedIp.trim() !== '') {
             base = `http://${savedIp.trim()}:${defaultPort}`;

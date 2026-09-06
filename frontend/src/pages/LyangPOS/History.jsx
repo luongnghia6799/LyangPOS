@@ -185,11 +185,13 @@ export default function History() {
     const fetchDuplicates = async () => {
         try {
             const res = await axios.get('/api/orders/duplicates');
-            setDuplicates(res.data);
+            setDuplicates(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error("Error fetching duplicates", err);
+            setDuplicates([]);
         }
     };
+
 
     const handleCheckDuplicate = async (orderId) => {
         setConfirmingId(orderId);
@@ -626,9 +628,9 @@ export default function History() {
                                     </thead>
                                     <tbody className="divide-y divide-[#d4a574]/10">
                                         {orders
-                                            .filter(o => !showOnlyDuplicates || duplicates.some(group => group.some(do_item => do_item.id === o.id)))
+                                            .filter(o => !showOnlyDuplicates || (Array.isArray(duplicates) && duplicates.some(group => Array.isArray(group) && group.some(do_item => do_item.id === o.id))))
                                             .map((o) => {
-                                                const isDuplicate = duplicates.some(group => group.some(do_item => do_item.id === o.id));
+                                                const isDuplicate = Array.isArray(duplicates) && duplicates.some(group => Array.isArray(group) && group.some(do_item => do_item.id === o.id));
                                                 return (
                                                     <tr
                                                         key={o.id}
@@ -641,7 +643,7 @@ export default function History() {
                                                         <td className="p-4 font-bold text-[#8b6f47] whitespace-nowrap">
                                                             #{o.display_id || o.id}
                                                             {(() => {
-                                                                const group = duplicates.find(g => g.some(do_item => do_item.id === o.id));
+                                                                const group = Array.isArray(duplicates) ? duplicates.find(g => Array.isArray(g) && g.some(do_item => do_item.id === o.id)) : null;
                                                                 if (group) {
                                                                     const other = group.find(do_item => do_item.id !== o.id);
                                                                     if (!other) return null;
@@ -808,14 +810,14 @@ export default function History() {
                                     <div className={cn(
                                         "flex justify-center transition-all duration-500 origin-top gap-8 items-start",
                                         (() => {
-                                            const group = duplicates.find(g => g.some(do_item => do_item.id === selectedOrder.id));
+                                            const group = Array.isArray(duplicates) ? duplicates.find(g => Array.isArray(g) && g.some(do_item => do_item.id === selectedOrder.id)) : null;
                                             return group ? "flex-row flex-wrap lg:flex-nowrap" : "flex-col";
                                         })()
                                     )} style={{ transform: `scale(${scale})` }}>
                                         {/* Đơn hiện tại */}
                                         <div className={cn(
                                             "pos-card p-8 rounded-2xl transition-all shadow-none",
-                                            duplicates.some(g => g.some(o => o.id === selectedOrder.id)) ? "w-full lg:w-1/2 border-emerald-500/30" : "w-full max-w-2xl mx-auto"
+                                            (Array.isArray(duplicates) && duplicates.some(g => Array.isArray(g) && g.some(o => o.id === selectedOrder.id))) ? "w-full lg:w-1/2 border-emerald-500/30" : "w-full max-w-2xl mx-auto"
                                         )}>
                                             <div className="flex justify-between items-center mb-6">
                                                 <h4 className="text-lg font-black uppercase text-[#2d5016] dark:text-[#d4a574]">Chi tiết đơn hàng #{selectedOrder.display_id || selectedOrder.id}</h4>
@@ -867,7 +869,7 @@ export default function History() {
 
                                         {/* Đơn đối xứng (Nếu có trùng) */}
                                         {(() => {
-                                            const group = duplicates.find(g => g.some(o => o.id === selectedOrder.id));
+                                            const group = Array.isArray(duplicates) ? duplicates.find(g => Array.isArray(g) && g.some(o => o.id === selectedOrder.id)) : null;
                                             if (!group) return null;
                                             const other = group.find(o => o.id !== selectedOrder.id);
                                             if (!other) return null;

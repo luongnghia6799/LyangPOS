@@ -863,7 +863,7 @@ const trimAudioBuffer = (ctx, buffer) => {
 };
 
 const getDynamicBaseUrl = () => {
-  const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3580' : '3579';
+  const defaultPort = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_PORT) || ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? '3588' : '3588');
   let baseUrl = axios.defaults.baseURL || `http://localhost:${defaultPort}`;
   if (baseUrl.includes('localhost') && typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.includes('tauri')) {
     baseUrl = baseUrl.replace('localhost', window.location.hostname);

@@ -3,7 +3,8 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 const REPO_OWNER = 'luongnghia6799';
-const REPO_NAME = 'lyangpos_thi';
+const REPO_NAME = 'LyangPOS';
+
 
 function getGitHubToken() {
   if (process.env.GH_TOKEN) return process.env.GH_TOKEN;

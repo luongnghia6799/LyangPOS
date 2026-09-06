@@ -7,7 +7,11 @@ pub async fn create_pool(database_url: &str) -> anyhow::Result<SqlitePool> {
     let options = SqliteConnectOptions::from_str(database_url)?
         .create_if_missing(true)
         .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)
-        .busy_timeout(Duration::from_secs(10));
+        .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+        .busy_timeout(Duration::from_secs(10))
+        .pragma("wal_autocheckpoint", "100")
+        .pragma("temp_store", "MEMORY")
+        .pragma("cache_size", "-20000");
 
     let pool = SqlitePoolOptions::new()
         .max_connections(50)
@@ -19,7 +23,7 @@ pub async fn create_pool(database_url: &str) -> anyhow::Result<SqlitePool> {
 
     ensure_schema(&pool).await?;
 
-    tracing::info!("SQLite connection pool initialized successfully (WAL mode enabled)");
+    tracing::info!("SQLite connection pool initialized successfully (WAL mode optimized, low threshold checkpoint)");
     Ok(pool)
 }
 

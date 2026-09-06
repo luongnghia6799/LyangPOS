@@ -36,8 +36,19 @@ pub fn resolve_backup_dir() -> PathBuf {
     dir
 }
 
-/// Tự động sao lưu database mỗi 5 phút nếu có thay đổi dữ liệu (Rolling backup lưu 5 bản gần nhất)
 pub fn start_auto_backup_task(pool: SqlitePool) {
+    let checkpoint_pool = pool.clone();
+    // 1. Tự động checkpoint dồn WAL vào file .db chính mỗi 30 giây để file WAL không bị phình to
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+            let _ = sqlx::query("PRAGMA wal_checkpoint(PASSIVE);")
+                .execute(&checkpoint_pool)
+                .await;
+        }
+    });
+
+    // 2. Tiến trình tự động sao lưu định kỳ mỗi 5 phút (rolling 5 bản)
     tokio::spawn(async move {
         let backup_dir = resolve_backup_dir();
         let db_path = resolve_db_path();

@@ -43,7 +43,7 @@ fn remove_accents(input: &str) -> String {
 
 fn get_base_dir() -> PathBuf {
     if let Ok(mut exe_path) = std::env::current_exe() {
-        exe_path.pop(); // remove binary name
+        exe_path.pop(); // remove binary name -> D:\LyangPOS
         if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
             exe_path.pop(); // pop release/debug
             exe_path.pop(); // pop target
@@ -51,11 +51,7 @@ fn get_base_dir() -> PathBuf {
         }
         return exe_path;
     }
-    let mut cur = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    if cur.ends_with("backend-rust") {
-        cur.pop();
-    }
-    cur
+    std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
 }
 
 fn resolve_tts_dir() -> PathBuf {

@@ -7,37 +7,19 @@ echo =====================================================================
 echo    * POSLITE - TIEN TRINH DONG GOI UNG DUNG TAURI LITE *
 echo =====================================================================
 echo.
-echo [*] Buoc 1: Bien dich Python Backend thanh Sidecar (.exe)...
-cd /d "%~dp0"
-
-:: Kiem tra hoac tao moi .venv
-if not exist .venv (
-    echo [*] Tao moi moi truong ao .venv...
-    python -m venv .venv
-)
-
-:: Kiem tra xem .venv co hoat dong khong (phong khi bi chuyen may)
-.venv\Scripts\python.exe -c "import sys" >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [*] Phat hien .venv bi loi hoac khong dung duong dan, dang tao lai...
-    rmdir /s /q .venv
-    python -m venv .venv
-)
-
-call .venv\Scripts\activate
-
-echo [*] Cai dat hoac cap nhat cac thu vien cho Backend...
-python -m pip install -r backend/requirements.txt
-
-python -m PyInstaller --clean --noconfirm backend/lyang-backend.spec
+echo [*] Buoc 1: Bien dich Backend Rust che do Release...
+cd /d "%~dp0backend-rust"
+cargo build --release
 if %ERRORLEVEL% NEQ 0 goto :error_backend
 
+echo.
 echo [*] Buoc 2: Sao chep file bien dich moi vao thu muc Tauri sidecar...
+cd /d "%~dp0"
 if not exist "%~dp0frontend\src-tauri\bin" mkdir "%~dp0frontend\src-tauri\bin"
-if exist "%~dp0dist\lyang-backend.exe" (
-    copy /y "%~dp0dist\lyang-backend.exe" "%~dp0frontend\src-tauri\bin\lyang-backend-x86_64-pc-windows-msvc.exe"
+if exist "%~dp0backend-rust\target\release\backend-rust.exe" (
+    copy /y "%~dp0backend-rust\target\release\backend-rust.exe" "%~dp0frontend\src-tauri\bin\lyang-backend-x86_64-pc-windows-msvc.exe"
 ) else (
-    copy /y "%~dp0backend\dist\lyang-backend.exe" "%~dp0frontend\src-tauri\bin\lyang-backend-x86_64-pc-windows-msvc.exe"
+    goto :error_copy
 )
 if %ERRORLEVEL% NEQ 0 goto :error_copy
 
@@ -47,16 +29,14 @@ cd /d "%~dp0frontend"
 
 echo.
 echo [*] Buoc 4: Kiem tra cai dat va cap nhat cac thu vien moi nhat...
-call npm install
+if not exist "node_modules" (
+    call npm install
+)
 
 echo.
-echo [*] Buoc 5: Thiet lap che do build Lite...
-set VITE_APP_MODE=lite
-
-echo.
-echo [*] Buoc 6: Bat dau qua trinh bien dich va dong goi Tauri POSLite...
-echo [!] Luu y: Qua trinh nay co the mat tu 2-5 phut tuy cau hinh may tinh.
-call npm run tauri:build -- --config src-tauri/tauri.lite.conf.json
+echo [*] Buoc 5: Bat dau qua trinh bien dich va dong goi Tauri POSLite...
+echo [!] Luu y: Qua trinh nay mat khoang 1-2 phut.
+call npm run tauri:build
 if %ERRORLEVEL% NEQ 0 goto :error_tauri
 
 echo.

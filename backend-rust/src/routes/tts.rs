@@ -97,10 +97,6 @@ pub async fn get_tts(Query(params): Query<TtsParams>) -> impl IntoResponse {
     let tts_dir = resolve_tts_dir();
     let cache_dirs = [
         tts_dir.clone(),
-        PathBuf::from("tts_cache"),
-        PathBuf::from("../tts_cache"),
-        PathBuf::from("storage/tts_cache"),
-        PathBuf::from("../storage/tts_cache"),
     ];
 
     let mut found_path: Option<PathBuf> = None;

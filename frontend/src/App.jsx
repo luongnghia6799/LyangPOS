@@ -674,6 +674,22 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    // Tu dong kiem tra va quet tao truoc cac file am thanh TTS nen khi chay tren may moi
+    const initTTSBackgroundScan = async () => {
+      try {
+        const { precacheCommonTTS } = await import('./lib/utils');
+        const res = await axios.get('/api/products').catch(() => null);
+        const products = res && Array.isArray(res.data) ? res.data : [];
+        precacheCommonTTS(products);
+      } catch (e) {
+        console.warn("Background TTS audit failed:", e);
+      }
+    };
+    const timer = setTimeout(initTTSBackgroundScan, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LazyMotion features={domMax}>

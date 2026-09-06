@@ -36,31 +36,43 @@ impl AppConfig {
 
         let host = std::env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
 
+        // Helper to get base application directory (where the .exe is running)
+        let get_base_dir = || -> PathBuf {
+            if let Ok(mut exe_path) = std::env::current_exe() {
+                exe_path.pop(); // remove binary name
+                if exe_path.ends_with("backend-rust") || exe_path.ends_with("bin") || exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
+                    // In dev mode, go up to workspace root if inside target or bin
+                    if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
+                        exe_path.pop(); // pop release/debug
+                        exe_path.pop(); // pop target
+                        exe_path.pop(); // pop backend-rust
+                    }
+                }
+                return exe_path;
+            }
+            let mut cur = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+            if cur.ends_with("backend-rust") {
+                cur.pop();
+            }
+            cur
+        };
+
+        let base_dir = get_base_dir();
+
         // 2. Resolve Database: --db <name> or DATABASE_URL or LYANG_DB or easypos.db
         let database_url = if let Some(db_name) = cli_db {
-            let mut db_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            if db_path.ends_with("backend-rust") {
-                db_path.pop();
-            }
-            db_path.push(db_name);
+            let db_path = base_dir.join(db_name);
             format!("sqlite://{}", db_path.display())
         } else if let Ok(url) = std::env::var("DATABASE_URL") {
             url
         } else {
             let db_name = std::env::var("LYANG_DB").unwrap_or_else(|_| "easypos.db".to_string());
-            let mut db_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            if db_path.ends_with("backend-rust") {
-                db_path.pop();
-            }
-            db_path.push(db_name);
+            let db_path = base_dir.join(db_name);
             format!("sqlite://{}", db_path.display())
         };
 
-        let mut uploads_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-        if uploads_dir.ends_with("backend-rust") {
-            uploads_dir.pop();
-        }
-        uploads_dir.push("uploads");
+        let uploads_dir = base_dir.join("uploads");
+        let _ = std::fs::create_dir_all(&uploads_dir);
 
         Self {
             port,

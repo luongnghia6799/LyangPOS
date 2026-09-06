@@ -41,12 +41,25 @@ fn remove_accents(input: &str) -> String {
     output
 }
 
-fn resolve_tts_dir() -> PathBuf {
-    let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    if dir.ends_with("backend-rust") {
-        dir.pop();
+fn get_base_dir() -> PathBuf {
+    if let Ok(mut exe_path) = std::env::current_exe() {
+        exe_path.pop(); // remove binary name
+        if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
+            exe_path.pop(); // pop release/debug
+            exe_path.pop(); // pop target
+            exe_path.pop(); // pop backend-rust
+        }
+        return exe_path;
     }
-    dir.push("tts_cache");
+    let mut cur = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    if cur.ends_with("backend-rust") {
+        cur.pop();
+    }
+    cur
+}
+
+fn resolve_tts_dir() -> PathBuf {
+    let dir = get_base_dir().join("tts_cache");
     let _ = std::fs::create_dir_all(&dir);
     dir
 }

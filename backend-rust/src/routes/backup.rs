@@ -13,21 +13,29 @@ use tokio::fs;
 
 use crate::error::AppError;
 
-fn resolve_db_path() -> PathBuf {
-    let mut db_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    if db_path.ends_with("backend-rust") {
-        db_path.pop();
+fn get_base_dir() -> PathBuf {
+    if let Ok(mut exe_path) = std::env::current_exe() {
+        exe_path.pop(); // remove binary name
+        if exe_path.ends_with("target\\release") || exe_path.ends_with("target\\debug") {
+            exe_path.pop(); // pop release/debug
+            exe_path.pop(); // pop target
+            exe_path.pop(); // pop backend-rust
+        }
+        return exe_path;
     }
-    db_path.push("easypos.db");
-    db_path
+    let mut cur = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    if cur.ends_with("backend-rust") {
+        cur.pop();
+    }
+    cur
+}
+
+fn resolve_db_path() -> PathBuf {
+    get_base_dir().join("easypos.db")
 }
 
 pub fn resolve_backup_dir() -> PathBuf {
-    let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    if dir.ends_with("backend-rust") {
-        dir.pop();
-    }
-    dir.push("backups");
+    let dir = get_base_dir().join("backups");
     let _ = std::fs::create_dir_all(&dir);
     dir
 }

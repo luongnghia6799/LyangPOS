@@ -11,6 +11,7 @@ import FontLoader from './components/FontLoader';
 import LoadingOverlay from './components/LoadingOverlay';
 import CustomCursor from './components/CustomCursor';
 import { checkIsAdmin } from './lib/auth';
+import { precacheCommonTTS } from './lib/utils';
 import axios from 'axios';
 
 const DEFAULT_PORT = import.meta.env.VITE_BACKEND_PORT || '3579';
@@ -678,7 +679,6 @@ function App() {
     // Tu dong kiem tra va quet tao truoc cac file am thanh TTS nen khi chay tren may moi
     const initTTSBackgroundScan = async () => {
       try {
-        const { precacheCommonTTS } = await import('./lib/utils');
         const res = await axios.get('/api/products').catch(() => null);
         const products = res && Array.isArray(res.data) ? res.data : [];
         precacheCommonTTS(products);

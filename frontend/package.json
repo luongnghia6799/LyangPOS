@@ -12,6 +12,8 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build && node rename_installer.js",
+    "tauri:release": "tauri build && node rename_installer.js && node upload_release.js",
+    "release": "node upload_release.js",
     "build:no-accounting": "vite build --mode no-accounting",
     "tauri:build:no-accounting": "vite build --mode no-accounting && tauri build && node rename_installer_no_accounting.js"
   },

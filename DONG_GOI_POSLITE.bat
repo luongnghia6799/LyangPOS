@@ -44,12 +44,23 @@ echo =====================================================================
 echo    * DONG GOI POSLITE THANH CONG RUC RO! *
 echo =====================================================================
 echo.
-echo [*] File cai dat (.msi / .exe) da duoc tao tai thu muc:
-echo     frontend\src-tauri\target\release\bundle\
+echo [*] File cai dat (.exe) da duoc tao tai:
+echo     frontend\src-tauri\target\release\bundle\nsis\
 echo.
-echo [>] Dang tu dong mo thu muc chua file cai dat cho ban...
-start "" "%~dp0frontend\src-tauri\target\release\bundle"
+echo [>] Dang mo thu muc chua file cai dat cho ban...
+start "" "%~dp0frontend\src-tauri\target\release\bundle\nsis"
 echo.
+
+set /p UPLOAD_CHOICE="[?] Ban co muon DANG BAN CAI DAT LEN GITHUB RELEASE ngay bay gio? (y/n) [y]: "
+if /i "%UPLOAD_CHOICE%"=="n" goto :finish
+
+echo.
+echo [*] Dang tien hanh dang len GitHub Release...
+node upload_release.js
+
+:finish
+echo.
+echo =====================================================================
 echo Chuc cua hang Lyang Nghia gat hai duoc nhieu mua mang boi thu!
 echo =====================================================================
 pause

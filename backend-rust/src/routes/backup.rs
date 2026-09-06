@@ -185,7 +185,7 @@ pub async fn restore_backup(
     // 2. Chuyển đổi trạng thái database sang WAL Checkpoint
     let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE);").execute(&pool).await;
 
-    // 3. Khôi phục dữ liệu bằng cách đọc file db tạm vào database hiện tại
+    // 3. Khôi phục dữ liệu bằng cách ghi đè trực tiếp vào easypos.db
     let db_path = resolve_db_path();
     
     // Đảm bảo ghi đè an toàn vào easypos.db
@@ -197,12 +197,18 @@ pub async fn restore_backup(
     // Xóa file tạm
     let _ = fs::remove_file(&temp_restore_path).await;
 
-    // 4. Dọn dẹp cache WAL / SHM để reload schema mới ngay lập tức
+    // Xóa cache WAL và SHM cũ nếu có để SQLite nạp lại file mới 100%
+    let wal_path = db_path.with_extension("db-wal");
+    let shm_path = db_path.with_extension("db-shm");
+    let _ = fs::remove_file(wal_path).await;
+    let _ = fs::remove_file(shm_path).await;
+
+    // 4. Nạp lại schema và tối ưu database
     let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE);").execute(&pool).await;
     let _ = sqlx::query("PRAGMA optimize;").execute(&pool).await;
 
     Ok(Json(json!({
-        "message": "Dữ liệu đã được khôi phục thành công!"
+        "message": "Dữ liệu đã được khôi phục thành công! Toàn bộ file database đã được cập nhật."
     })))
 }
 
